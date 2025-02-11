@@ -1381,6 +1381,30 @@ namespace DataTierGenerator
             this.txtAuditoria.TabIndex = 5;
             this.txtAuditoria.Text = "";
             // 
+            // cSharpHighlighter1
+            // 
+            this.cSharpHighlighter1.FullName = "C#";
+            this.cSharpHighlighter1.Name = "C#";
+            this.cSharpHighlighter1.Parser = null;
+            // 
+            // aspxHighlighter1
+            // 
+            this.aspxHighlighter1.FullName = "ASP.NET";
+            this.aspxHighlighter1.Name = "ASPX";
+            this.aspxHighlighter1.Parser = null;
+            // 
+            // sqlHighlighter1
+            // 
+            this.sqlHighlighter1.FullName = "SQL";
+            this.sqlHighlighter1.Name = "SQL";
+            this.sqlHighlighter1.Parser = null;
+            // 
+            // vbHighlighter1
+            // 
+            this.vbHighlighter1.FullName = "Visual Basic";
+            this.vbHighlighter1.Name = "VisualBasic";
+            this.vbHighlighter1.Parser = null;
+            // 
             // frmGenerador
             // 
             this.AutoScaleBaseSize = new System.Drawing.Size(5, 13);
