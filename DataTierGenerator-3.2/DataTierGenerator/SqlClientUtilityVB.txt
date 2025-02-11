@@ -1,0 +1,514 @@
+Imports System
+Imports System.Collections
+Imports System.Configuration
+Imports System.Data
+Imports System.Data.SqlClient
+
+Namespace #Namespace#.Data 
+    '/// <summary>
+    '/// Provides functionality for executing commands against a database.
+    '/// </summary>
+    Public Class SqlClientUtility
+        '// Timeout for commands issued against a database; 10 minutes
+        Private Const COMMAND_TIMEOUT As Integer = 600
+
+        '/// <summary>
+        '/// Constructor declared <code>private</code> to prevent instantiation.
+        '/// </summary>
+        Private Sub New()
+
+        End Sub
+
+        '/// <summary>
+        '/// Returns the configured connection string.
+        '/// </summary>
+        '/// <returns>The configured connection string.</returns>
+        Public Shared Function GetConnectionString() As String
+            Return Convert.ToString(ConfigurationSettings.AppSettings("ConnectionString"))
+        End Function
+
+        '/// <summary>
+        '/// Creates and returns a closed connection to the configured database.
+        '/// </summary>
+        '/// <returns>An open connection to the configured database.</returns>
+        Public Shared Function GetConnection() As SqlConnection
+            Return New SqlConnection(GetConnectionString())
+        End Function
+
+
+#Region "ExecuteNonQuery functions"
+        '/// <summary>
+        '/// Executes the stored procedure.
+        '/// </summary>
+        '/// <param name="commandText">The stored procedure to execute.</param>
+        Public Shared Sub ExecuteNonQuery(ByVal commandText As String)
+            Dim connection As SqlConnection = GetConnection()
+            ExecuteNonQuery(connection, commandText)
+        End Sub
+
+        '/// <summary>
+        '/// Executes the stored procedure on the specified <see cref="SqlConnection"/>.
+        '/// </summary>
+        '/// <param name="connection">The database connection to be used.</param>
+        '/// <param name="commandText">The stored procedure to execute.</param>
+        Public Shared Sub ExecuteNonQuery(ByVal connection As SqlConnection, ByVal commandText As String)
+            ExecuteNonQuery(connection, Nothing, commandText)
+        End Sub
+
+        '/// <summary>
+        '/// Executes the stored procedure on the specified <see cref="SqlConnection"/> within the specified <see cref="SqlTransaction"/>.
+        '/// </summary>
+        '/// <param name="connection">The database connection to be used.</param>
+        '/// <param name="transaction">The transaction to participate in.</param>
+        '/// <param name="commandText">The stored procedure to execute.</param>
+        Public Shared Sub ExecuteNonQuery(ByVal connection As SqlConnection, ByVal transaction As SqlTransaction, ByVal commandText As String)
+            Dim command As SqlCommand = CreateCommand(connection, transaction, commandText)
+            command.ExecuteNonQuery()
+
+        End Sub
+
+        '/// <summary>
+        '/// Executes the stored procedure with the specified parameters.
+        '/// </summary>
+        '/// <param name="commandText">The stored procedure to execute.</param>
+        '/// <param name="parameters">The parameters of the stored procedure.</param>
+        Public Shared Sub ExecuteNonQuery(ByVal commandText As String, ByVal ParamArray parameters As SqlParameter())
+            Dim connection As SqlConnection = GetConnection()
+            ExecuteNonQuery(connection, commandText, parameters)
+        End Sub
+
+        '/// <summary>
+        '/// Executes the stored procedure with the specified parameters on the specified connection.
+        '/// </summary>
+        '/// <param name="connection">The database connection to be used.</param>
+        '/// <param name="commandText">The stored procedure to execute.</param>
+        '/// <param name="parameters">The parameters of the stored procedure.</param>
+        Public Shared Sub ExecuteNonQuery(ByVal connection As SqlConnection, ByVal commandText As String, ByVal ParamArray parameters As SqlParameter())
+            ExecuteNonQuery(connection, Nothing, commandText, parameters)
+        End Sub
+
+        '/// <summary>
+        '/// Executes the stored procedure with the specified parameters on the specified <see cref="SqlConnection"/> within the specified <see cref="SqlTransaction"/>.
+        '/// </summary>
+        '/// <param name="connection">The database connection to be used.</param>
+        '/// <param name="transaction">The transaction to participate in.</param>
+        '/// <param name="commandText">The stored procedure to execute.</param>
+        '/// <param name="parameters">The parameters of the stored procedure.</param>
+        Public Shared Sub ExecuteNonQuery(ByVal connection As SqlConnection, ByVal transaction As SqlTransaction, ByVal commandText As String, ByVal ParamArray parameters As SqlParameter())
+            Dim command As SqlCommand = CreateCommand(connection, transaction, commandText, parameters)
+            command.ExecuteNonQuery()
+        End Sub
+#End Region
+
+#Region "ExecuteReader functions"
+        '/// <summary>
+        '/// Executes the stored procedure and returns the result as a <see cref="SqlDataReader"/>.
+        '/// </summary>
+        '/// <param name="commandText">The stored procedure to execute.</param>
+        '/// <returns>A <see cref="SqlDataReader"/> containing the results of the stored procedure execution.</returns>
+        Public Shared Function ExecuteReader(ByVal commandText As String) As SqlDataReader
+            Dim connection As SqlConnection = GetConnection()
+            Return ExecuteReader(connection, commandText)
+
+        End Function
+
+        '/// <summary>
+        '/// Executes the stored procedure on the specified <see cref="SqlConnection"/> and returns the result as a <see cref="SqlDataReader"/>.
+        '/// </summary>
+        '/// <param name="connection">The database connection to be used.</param>
+        '/// <param name="commandText">The stored procedure to execute.</param>
+        '/// <returns>A <see cref="SqlDataReader"/> containing the results of the stored procedure execution.</returns>
+        Public Shared Function ExecuteReader(ByVal connection As SqlConnection, ByVal commandText As String) As SqlDataReader
+            Return ExecuteReader(connection, Nothing, commandText)
+        End Function
+
+        '/// <summary>
+        '/// Executes the stored procedure on the specified <see cref="SqlConnection"/> within the specified <see cref="SqlTransaction"/> and returns the result as a <see cref="SqlDataReader"/>.
+        '/// </summary>
+        '/// <param name="connection">The database connection to be used.</param>
+        '/// <param name="transaction">The transaction to participate in.</param>
+        '/// <param name="commandText">The stored procedure to execute.</param>
+        '/// <returns>A <see cref="SqlDataReader"/> containing the results of the stored procedure execution.</returns>
+        Public Shared Function ExecuteReader(ByVal connection As SqlConnection, ByVal transaction As SqlTransaction, ByVal commandText As String) As SqlDataReader
+            Dim command As SqlCommand = CreateCommand(connection, transaction, commandText)
+            Return command.ExecuteReader()
+        End Function
+
+        '/// <summary>
+        '/// Executes the stored procedure with the specified parameters and returns the result as a <see cref="SqlDataReader"/>.
+        '/// </summary>
+        '/// <param name="commandText">The stored procedure to execute.</param>
+        '/// <param name="parameters">The parameters of the stored procedure.</param>
+        '/// <returns>A <see cref="SqlDataReader"/> containing the results of the stored procedure execution.</returns>
+        Public Shared Function ExecuteReader(ByVal commandText As String, ByVal ParamArray parameters As SqlParameter()) As SqlDataReader
+            Dim connection As SqlConnection = GetConnection()
+            Return ExecuteReader(connection, commandText, parameters)
+        End Function
+
+        '/// <summary>
+        '/// Executes the stored procedure on the specified <see cref="SqlConnection"/> with the specified parameters and returns the result as a <see cref="SqlDataReader"/>.
+        '/// </summary>
+        '/// <param name="connection">The database connection to be used.</param>
+        '/// <param name="commandText">The stored procedure to execute.</param>
+        '/// <param name="parameters">The parameters of the stored procedure.</param>
+        '/// <returns>A <see cref="SqlDataReader"/> containing the results of the stored procedure execution.</returns>
+        Public Shared Function ExecuteReader(ByVal connection As SqlConnection, ByVal commandText As String, ByVal ParamArray parameters As SqlParameter()) As SqlDataReader
+            Return ExecuteReader(connection, Nothing, commandText, parameters)
+        End Function
+
+        '/// <summary>
+        '/// Executes the stored procedure on the specified <see cref="SqlConnection"/> within the specified <see cref="SqlTransaction"/> with the specified parameters and returns the result as a <see cref="SqlDataReader"/>.
+        '/// </summary>
+        '/// <param name="connection">The database connection to be used.</param>
+        '/// <param name="transaction">The transaction to participate in.</param>
+        '/// <param name="commandText">The stored procedure to execute.</param>
+        '/// <param name="parameters">The parameters of the stored procedure.</param>
+        '/// <returns>A <see cref="SqlDataReader"/> containing the results of the stored procedure execution.</returns>
+        Public Shared Function ExecuteReader(ByVal connection As SqlConnection, ByVal transaction As SqlTransaction, ByVal commandText As String, ByVal ParamArray parameters As SqlParameter()) As SqlDataReader
+            Dim command As SqlCommand = CreateCommand(connection, transaction, commandText, parameters)
+            Return command.ExecuteReader()
+        End Function
+#End Region
+
+#Region "ExecuteScalar functions"
+        '/// <summary>
+        '/// Executes the stored procedure, and returns the first column of the first row in the result set returned by the query. Extra columns or rows are ignored.
+        '/// </summary>
+        '/// <param name="commandText">The stored procedure to execute.</param>
+        '/// <returns>The first column of the first row in the result set, or a null reference if the result set is empty.</returns>
+        Public Shared Function ExecuteScalar(ByVal commandText As String) As Object
+            Dim connection As SqlConnection = GetConnection()
+            Return ExecuteScalar(connection, commandText)
+        End Function
+
+        '/// <summary>
+        '/// Executes the stored procedure on the specified <see cref="SqlConnection"/>, and returns the first column of the first row in the result set returned by the query. Extra columns or rows are ignored.
+        '/// </summary>
+        '/// <param name="connection">The database connection to be used.</param>
+        '/// <param name="commandText">The stored procedure to execute.</param>
+        '/// <returns>The first column of the first row in the result set, or a null reference if the result set is empty.</returns>
+        Public Shared Function ExecuteScalar(ByVal connection As SqlConnection, ByVal commandText As String) As Object
+            Return ExecuteScalar(connection, Nothing, commandText)
+        End Function
+
+        '/// <summary>
+        '/// Executes the stored procedure on the specified <see cref="SqlConnection"/> within the specified <see cref="SqlTransaction"/>, and returns the first column of the first row in the result set returned by the query. Extra columns or rows are ignored.
+        '/// </summary>
+        '/// <param name="connection">The database connection to be used.</param>
+        '/// <param name="transaction">The transaction to participate in.</param>
+        '/// <param name="commandText">The stored procedure to execute.</param>
+        '/// <returns>The first column of the first row in the result set, or a null reference if the result set is empty.</returns>
+        Public Shared Function ExecuteScalar(ByVal connection As SqlConnection, ByVal transaction As SqlTransaction, ByVal commandText As String) As Object
+            Dim command As SqlCommand = CreateCommand(connection, transaction, commandText)
+            Return command.ExecuteScalar()
+        End Function
+
+        '/// <summary>
+        '/// Executes the stored procedure with the specified parameters, and returns the first column of the first row in the result set returned by the query. Extra columns or rows are ignored.
+        '/// </summary>
+        '/// <param name="commandText">The stored procedure to execute.</param>
+        '/// <param name="parameters">The parameters of the stored procedure.</param>
+        '/// <returns>The first column of the first row in the result set, or a null reference if the result set is empty.</returns>
+        Public Shared Function ExecuteScalar(ByVal commandText As String, ByVal ParamArray parameters As SqlParameter()) As Object
+            Dim connection As SqlConnection = GetConnection()
+            Return ExecuteScalar(connection, commandText, parameters)
+        End Function
+
+        '/// <summary>
+        '/// Executes the stored procedure on the specified <see cref="SqlTransaction"/> with the specified parameters, and returns the first column of the first row in the result set returned by the query. Extra columns or rows are ignored.
+        '/// </summary>
+        '/// <param name="connection">The database connection to be used.</param>
+        '/// <param name="commandText">The stored procedure to execute.</param>
+        '/// <param name="parameters">The parameters of the stored procedure.</param>
+        '/// <returns>The first column of the first row in the result set, or a null reference if the result set is empty.</returns>
+        Public Shared Function ExecuteScalar(ByVal connection As SqlConnection, ByVal commandText As String, ByVal ParamArray parameters As SqlParameter()) As Object
+            Return ExecuteScalar(connection, Nothing, commandText, parameters)
+        End Function
+
+        '/// <summary>
+        '/// Executes the stored procedure on the specified <see cref="SqlTransaction"/> within the specified <see cref="SqlTransaction"/> with the specified parameters, and returns the first column of the first row in the result set returned by the query. Extra columns or rows are ignored.
+        '/// </summary>
+        '/// <param name="connection">The database connection to be used.</param>
+        '/// <param name="transaction">The transaction to participate in.</param>
+        '/// <param name="commandText">The stored procedure to execute.</param>
+        '/// <param name="parameters">The parameters of the stored procedure.</param>
+        '/// <returns>The first column of the first row in the result set, or a null reference if the result set is empty.</returns>
+        Public Shared Function ExecuteScalar(ByVal connection As SqlConnection, ByVal transaction As SqlTransaction, ByVal commandText As String, ByVal ParamArray parameters As SqlParameter()) As Object
+            Dim command As SqlCommand = CreateCommand(connection, transaction, commandText, parameters)
+            Return command.ExecuteScalar()
+        End Function
+#End Region
+
+#Region "ExecuteDataSet functions"
+        '/// <summary>
+        '/// Executes the stored procedure and returns the result as a <see cref="DataSet"/>.
+        '/// </summary>
+        '/// <param name="commandText">The stored procedure to execute.</param>
+        '/// <returns>A <see cref="DataSet"/> containing the results of the stored procedure execution.</returns>
+        Public Shared Function ExecuteDataSet(ByVal commandText As String) As DataSet
+            Dim connection As SqlConnection = GetConnection()
+            Dim command As SqlCommand = CreateCommand(connection, commandText)
+            Return CreateDataSet(command)
+        End Function
+
+        '/// <summary>
+        '/// Executes the stored procedure and returns the result as a <see cref="DataSet"/>.
+        '/// </summary>
+        '/// <param name="connection">The database connection to be used.</param>
+        '/// <param name="commandText">The stored procedure to execute.</param>
+        '/// <returns>A <see cref="DataSet"/> containing the results of the stored procedure execution.</returns>
+        Public Shared Function ExecuteDataSet(ByVal connection As SqlConnection, ByVal commandText As String) As DataSet
+            Dim command As SqlCommand = CreateCommand(connection, commandText)
+            Return CreateDataSet(Command)
+        End Function
+
+
+        '/// <summary>
+        '/// Executes the stored procedure and returns the result as a <see cref="DataSet"/>.
+        '/// </summary>
+        '/// <param name="connection">The database connection to be used.</param>
+        '/// <param name="transaction">The transaction to participate in.</param>
+        '/// <param name="commandText">The stored procedure to execute.</param>
+        '/// <returns>A <see cref="DataSet"/> containing the results of the stored procedure execution.</returns>
+        Public Shared Function ExecuteDataSet(ByVal connection As SqlConnection, ByVal transaction As SqlTransaction, ByVal commandText As String) As DataSet
+            Dim command As SqlCommand = CreateCommand(connection, transaction, commandText)
+            Return CreateDataSet(command)
+        End Function
+
+        '/// <summary>
+        '/// Executes the stored procedure and returns the result as a <see cref="DataSet"/>.
+        '/// </summary>
+        '/// <param name="commandText">The stored procedure to execute.</param>
+        '/// <param name="parameters">The parameters of the stored procedure.</param>
+        '/// <returns>A <see cref="DataSet"/> containing the results of the stored procedure execution.</returns>
+        Public Shared Function ExecuteDataSet(ByVal commandText As String, ByVal ParamArray parameters As SqlParameter()) As DataSet
+            Dim connection As SqlConnection = GetConnection()
+            Dim command As SqlCommand = CreateCommand(connection, commandText, parameters)
+            Return CreateDataSet(command)
+        End Function
+
+        '/// <summary>
+        '/// Executes the stored procedure and returns the result as a <see cref="DataSet"/>.
+        '/// </summary>
+        '/// <param name="connection">The database connection to be used.</param>
+        '/// <param name="commandText">The stored procedure to execute.</param>
+        '/// <param name="parameters">The parameters of the stored procedure.</param>
+        '/// <returns>A <see cref="DataSet"/> containing the results of the stored procedure execution.</returns>
+        Public Shared Function ExecuteDataSet(ByVal connection As SqlConnection, ByVal commandText As String, ByVal ParamArray parameters As SqlParameter()) As DataSet
+            Dim command As SqlCommand = CreateCommand(connection, commandText, parameters)
+            Return CreateDataSet(command)
+        End Function
+
+
+        '/// <summary>
+        '/// Executes the stored procedure and returns the result as a <see cref="DataSet"/>.
+        '/// </summary>
+        '/// <param name="connection">The database connection to be used.</param>
+        '/// <param name="transaction">The transaction to participate in.</param>
+        '/// <param name="commandText">The stored procedure to execute.</param>
+        '/// <param name="parameters">The parameters of the stored procedure.</param>
+        '/// <returns>A <see cref="DataSet"/> containing the results of the stored procedure execution.</returns>
+        Public Shared Function ExecuteDataSet(ByVal connection As SqlConnection, ByVal transaction As SqlTransaction, ByVal commandText As String, ByVal ParamArray parameters As SqlParameter()) As DataSet
+            Dim command As SqlCommand = CreateCommand(connection, transaction, commandText, parameters)
+            Return CreateDataSet(command)
+        End Function
+#End Region
+
+#Region "ExecuteDataTable functions"
+        '/// <summary>
+        '/// Executes the stored procedure and returns the result as a <see cref="DataTable"/>.
+        '/// </summary>
+        '/// <param name="commandText">The stored procedure to execute.</param>
+        '/// <returns>A <see cref="DataTable"/> containing the results of the stored procedure execution.</returns>
+        Public Shared Function ExecuteDataTable(ByVal commandText As String) As DataTable
+            Dim connection As SqlConnection = GetConnection()
+            Dim command As SqlCommand = CreateCommand(connection, commandText)
+            Return CreateDataTable(command)
+        End Function
+
+        '/// <summary>
+        '/// Executes the stored procedure and returns the result as a <see cref="DataTable"/>.
+        '/// </summary>
+        '/// <param name="connection">The database connection to be used.</param>
+        '/// <param name="commandText">The stored procedure to execute.</param>
+        '/// <returns>A <see cref="DataTable"/> containing the results of the stored procedure execution.</returns>
+        Public Shared Function ExecuteDataTable(ByVal connection As SqlConnection, ByVal commandText As String) As DataTable
+            Dim command As SqlCommand = CreateCommand(connection, commandText)
+            Return CreateDataTable(command)
+        End Function
+
+
+        '/// <summary>
+        '/// Executes the stored procedure and returns the result as a <see cref="DataTable"/>.
+        '/// </summary>
+        '/// <param name="connection">The database connection to be used.</param>
+        '/// <param name="transaction">The transaction to participate in.</param>
+        '/// <param name="commandText">The stored procedure to execute.</param>
+        '/// <returns>A <see cref="DataTable"/> containing the results of the stored procedure execution.</returns>
+        Public Shared Function ExecuteDataTable(ByVal connection As SqlConnection, ByVal transaction As SqlTransaction, ByVal commandText As String) As DataTable
+            Dim command As SqlCommand = CreateCommand(connection, transaction, commandText)
+            Return CreateDataTable(command)
+        End Function
+
+        '/// <summary>
+        '/// Executes the stored procedure and returns the result as a <see cref="DataTable"/>.
+        '/// </summary>
+        '/// <param name="commandText">The stored procedure to execute.</param>
+        '/// <param name="parameters">The parameters of the stored procedure.</param>
+        '/// <returns>A <see cref="DataTable"/> containing the results of the stored procedure execution.</returns>
+        Public Shared Function ExecuteDataTable(ByVal commandText As String, ByVal ParamArray parameters As SqlParameter()) As DataTable
+            Dim connection As SqlConnection = GetConnection()
+            Dim command As SqlCommand = CreateCommand(connection, commandText, parameters)
+            Return CreateDataTable(command)
+        End Function
+
+        '/// <summary>
+        '/// Executes the stored procedure and returns the result as a <see cref="DataTable"/>.
+        '/// </summary>
+        '/// <param name="connection">The database connection to be used.</param>
+        '/// <param name="commandText">The stored procedure to execute.</param>
+        '/// <param name="parameters">The parameters of the stored procedure.</param>
+        '/// <returns>A <see cref="DataTable"/> containing the results of the stored procedure execution.</returns>
+        Public Shared Function ExecuteDataTable(ByVal connection As SqlConnection, ByVal commandText As String, ByVal ParamArray parameters As SqlParameter()) As DataTable
+            Dim command As SqlCommand = CreateCommand(connection, commandText, parameters)
+            Return CreateDataTable(command)
+        End Function
+
+
+        '/// <summary>
+        '/// Executes the stored procedure and returns the result as a <see cref="DataTable"/>.
+        '/// </summary>
+        '/// <param name="connection">The database connection to be used.</param>
+        '/// <param name="transaction">The transaction to participate in.</param>
+        '/// <param name="commandText">The stored procedure to execute.</param>
+        '/// <param name="parameters">The parameters of the stored procedure.</param>
+        '/// <returns>A <see cref="DataTable"/> containing the results of the stored procedure execution.</returns>
+        Public Shared Function ExecuteDataTable(ByVal connection As SqlConnection, ByVal transaction As SqlTransaction, ByVal commandText As String, ByVal ParamArray parameters As SqlParameter()) As DataTable
+            Dim command As SqlCommand = CreateCommand(connection, transaction, commandText, parameters)
+            Return CreateDataTable(command)
+        End Function
+#End Region
+
+#Region "Utility functions"
+        '/// <summary>
+        '/// Sets the specified <see cref="SqlParameter"/>'s <code>Value</code> property to <code>DBNull.Value</code> if it is <code>null</code>.
+        '/// </summary>
+        '/// <param name="parameter">The <see cref="SqlParameter"/> that should be checked for nulls.</param>
+        '/// <returns>The <see cref="SqlParameter"/> with a potentially updated <code>Value</code> property.</returns>
+        Private Shared Function CheckParameter(ByVal parameter As SqlParameter) As SqlParameter
+            If (parameter.Value Is Nothing) Then
+                parameter.Value = DBNull.Value
+            End If
+
+            Return parameter
+        End Function
+
+#Region "CreateCommand"
+        '/// <summary>
+        '/// Creates, initializes, and returns a <see cref="SqlCommand"/> instance.
+        '/// </summary>
+        '/// <param name="connection">The <see cref="SqlConnection"/> the <see cref="SqlCommand"/> should be executed on.</param>
+        '/// <param name="commandText">The name of the stored procedure to execute.</param>
+        '/// <returns>An initialized <see cref="SqlCommand"/> instance.</returns>
+        Private Shared Function CreateCommand(ByVal connection As SqlConnection, ByVal commandText As String) As SqlCommand
+            Return CreateCommand(connection, Nothing, commandText)
+        End Function
+
+        '/// <summary>
+        '/// Creates, initializes, and returns a <see cref="SqlCommand"/> instance.
+        '/// </summary>
+        '/// <param name="connection">The <see cref="SqlConnection"/> the <see cref="SqlCommand"/> should be executed on.</param>
+        '/// <param name="transaction">The <see cref="SqlTransaction"/> the stored procedure execution should participate in.</param>
+        '/// <param name="commandText">The name of the stored procedure to execute.</param>
+        '/// <returns>An initialized <see cref="SqlCommand"/> instance.</returns>
+        Private Shared Function CreateCommand(ByVal connection As SqlConnection, ByVal transaction As SqlTransaction, ByVal commandText As String) As SqlCommand
+            Dim command As SqlCommand = New SqlCommand()
+            command.Connection = connection
+            command.CommandText = commandText
+            command.CommandTimeout = COMMAND_TIMEOUT
+            command.CommandType = CommandType.StoredProcedure
+            command.Transaction = transaction
+            Return command
+        End Function
+
+        '/// <summary>
+        '/// Creates, initializes, and returns a <see cref="SqlCommand"/> instance.
+        '/// </summary>
+        '/// <param name="connection">The <see cref="SqlConnection"/> the <see cref="SqlCommand"/> should be executed on.</param>
+        '/// <param name="commandText">The name of the stored procedure to execute.</param>
+        '/// <param name="parameters">The parameters of the stored procedure.</param>
+        '/// <returns>An initialized <see cref="SqlCommand"/> instance.</returns>
+        Private Shared Function CreateCommand(ByVal connection As SqlConnection, ByVal commandText As String, ByVal ParamArray parameters As SqlParameter()) As SqlCommand
+            Return CreateCommand(connection, Nothing, commandText, parameters)
+        End Function
+
+        '/// <summary>
+        '/// Creates, initializes, and returns a <see cref="SqlCommand"/> instance.
+        '/// </summary>
+        '/// <param name="connection">The <see cref="SqlConnection"/> the <see cref="SqlCommand"/> should be executed on.</param>
+        '/// <param name="transaction">The <see cref="SqlTransaction"/> the stored procedure execution should participate in.</param>
+        '/// <param name="commandText">The name of the stored procedure to execute.</param>
+        '/// <param name="parameters">The parameters of the stored procedure.</param>
+        '/// <returns>An initialized <see cref="SqlCommand"/> instance.</returns>
+        Private Shared Function CreateCommand(ByVal connection As SqlConnection, ByVal transaction As SqlTransaction, ByVal commandText As String, ByVal ParamArray parameters As SqlParameter()) As SqlCommand
+            Dim Command As SqlCommand = New SqlCommand()
+            Command.Connection = connection
+            Command.CommandText = commandText
+            Command.CommandTimeout = COMMAND_TIMEOUT
+            Command.CommandType = CommandType.StoredProcedure
+            Command.Transaction = transaction
+
+            '// Append each parameter to the command
+            For Each parameter As SqlParameter In parameters
+                Command.Parameters.Add(CheckParameter(parameter))
+            Next
+
+            Return Command
+        End Function
+#End Region
+
+        Private Shared Function CreateDataSet(ByVal command As SqlCommand) As DataSet
+            Dim dataAdapter As SqlDataAdapter = New SqlDataAdapter(command)
+            Dim _dataSet As DataSet = New DataSet()
+            dataAdapter.Fill(_dataSet)
+            Return _dataSet
+
+        End Function
+
+        Private Shared Function CreateDataTable(ByVal command As SqlCommand) As DataTable
+            Dim dataAdapter As SqlDataAdapter = New SqlDataAdapter(command)
+            Dim _dataTable As DataTable = New DataTable()
+            dataAdapter.Fill(_dataTable)
+            Return _dataTable
+        End Function
+#End Region
+
+#Region "Exception functions"
+        '/// <summary>
+        '/// Determines if the specified exception is the result of a foreign key violation.
+        '/// </summary>
+        '/// <param name="e">The exception to check.</param>
+        '/// <returns><code>true</code> if the exception is a foreign key violation, otherwise <code>false</code>.</returns>
+        Public Shared Function IsForeignKeyContraintException(ByVal e As Exception) As Boolean
+            Dim sqlex As SqlException = e
+            If (IsNothing(sqlex) = False And sqlex.Number = 547) Then
+                Return True
+            End If
+            Return False
+        End Function
+
+        '/// <summary>
+        '/// Determines if the specified exception is the result of a unique constraint violation.
+        '/// </summary>
+        '/// <param name="e">The exception to check.</param>
+        '/// <returns><code>true</code> if the exception is a unique constraint violation, otherwise <code>false</code>.</returns>
+        Public Shared Function IsUniqueConstraintException(ByVal e As Exception) As Boolean
+            Dim sqlex As SqlException = e
+            If (IsNothing(sqlex) = False And (sqlex.Number = 2627 Or sqlex.Number = 2601)) Then
+                Return True
+            End If
+            Return False
+        End Function
+#End Region
+    End Class
+End Namespace

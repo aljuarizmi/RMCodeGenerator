@@ -1,0 +1,98 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Configuration;
+using System.Data;
+using System.Data.SqlClient;
+using System.Reflection;
+using System.Text;
+
+namespace #Namespace#.Data.SqlServer
+{
+ 
+    #region MapperBase Class
+
+    public abstract class MapperBase<T>
+    {
+
+        //''' <summary>
+        //''' Funcion que retorna una instancia de un objeto que va a ser elemento de la lista
+        //''' </summary>
+        protected abstract T Map(IDataRecord record);
+        //''' <summary>
+        //''' Funcion que retorna una Lista Generica con Datos Cargados de una DataReader
+        //''' </summary>
+        public List<T> MapAll(IDataReader reader)
+        {
+            List<T> list;
+            list = new List<T>();
+            while (reader.Read())
+            {
+                try
+                {
+                    list.Add(Map(reader));
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception(ex.Message); //new Exception('New ApplicationException("Exception Occured")
+                }
+            }
+            return list;
+        }
+    }
+
+    #endregion
+
+    #region ObjectReaderBase Class
+
+    public abstract class ObjectReaderBase<T>
+    {
+        protected abstract MapperBase<T> GetMapper();
+        
+        //''' <summary>
+        //''' Funcion que retorna una Lista Generica de Un Tipo Especifico
+        //''' </summary>
+        protected List<T> GetList(IDataReader dre, ObjectReaderBase<T> objReaderBase)  
+        {
+            try
+            {   List<T> List = new List<T>();
+                MapperBase<T>  mapper  = objReaderBase.GetMapper();
+                List = mapper.MapAll(dre);
+                return List;
+            }
+            catch(Exception ex){
+                throw new Exception(ex.Message);
+            }finally{
+                dre.Close();
+            }
+        }
+
+    }
+
+#endregion
+
+     public class GenericoManager<T>
+     {
+        public delegate T AssignObject(IDataReader reader);
+        private AssignObject _AssigObject;
+
+        public List<T> GetList(IDataReader reader)  
+        {   List<T> list = new List<T>();
+            while (reader.Read())
+            {
+                try
+                {
+                    list.Add(_AssigObject(reader));
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception(ex.Message);
+                }
+            }
+            return list;
+        }
+
+        public void SetMetodoAsignaObjeto(AssignObject metodo)
+        {_AssigObject = metodo; }
+     }
+}

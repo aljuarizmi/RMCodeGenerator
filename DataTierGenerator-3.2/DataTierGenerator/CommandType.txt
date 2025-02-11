@@ -1,0 +1,13 @@
+package #Namespace#;
+
+/**
+ *
+ * @author Jackie Giovanni
+ */
+public class CommandType {
+  private int value;
+  private CommandType(int nm) { value = nm; }
+  public static final CommandType
+    COMMAND_TEXT = new CommandType(2),   
+    STORE_PROCEDURE = new CommandType(1);
+}

@@ -1,0 +1,9 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="RMCodeGen.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="CadenaConexion" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Data Source=giovanni;Initial Catalog=data_400;Integrated Security=true;User Id=SUPERVISOR_SQL;Password=XfSgsh2Wna7KtZLBkLgTlbdhuW1of</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>

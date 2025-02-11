@@ -1,0 +1,19 @@
+Imports System
+'Imports System.Collections.Generic
+Imports System.Text
+Imports System.Diagnostics
+
+Namespace #Namespace#.BusinessObjects
+    Public Class UtilBO
+    '      //'Manejador generico de Excepciones que enmascara la informacion detallada de la excepcion 
+        Public Shared Sub ManejaExcepcion(ByVal ex as Exception,ByVal sender as Object,ByVal metodo as string)  
+            ' Agregar codigo para log en txt
+            'Dim tracetxt As New TextWriterTraceListener(New StreamWriter("log.txt"))
+            'Trace.Listeners.Add(tracetxt)
+            Debug.WriteLine(ex.StackTrace)
+            Trace.WriteLine(ex.StackTrace)
+            Throw New Exception("Ocurrio un Error al Ejecutar : " + sender.ToString() + " metodo : " + metodo)
+        End Sub
+    End Class
+End Namespace
+

@@ -1,0 +1,133 @@
+package #Namespace#;
+import java.sql.ResultSet;
+/**
+ *
+ * @author Jackie Giovanni
+ */
+public class Connection {
+    private static String SERVER;
+    private static String DATABASE;
+    private static String USER;
+    private static String PASSWORD;
+    private DBMSConection Conexion;
+    
+    public Connection()throws Exception{
+        try{
+            Conexion = new DBMSConection();
+            Conexion.setSERVER(SERVER);
+            Conexion.setDATABASE(DATABASE);
+            Conexion.setUSER(USER);
+            Conexion.setPASSWORD(PASSWORD);
+        }catch(Exception ex){
+            throw ex;
+        }
+    }
+ 
+    public void Dispose()throws Exception{
+        try{
+            if(Conexion != null){
+                Conexion.Dispose();
+            }
+        }catch(Exception ex){
+            throw ex;
+        }
+    }
+    public void TransactionBegin()throws Exception{
+        try{
+            if(Conexion != null){
+                Conexion.TransactionBegin();
+            }
+        }catch(Exception ex){
+            throw ex;
+        }
+    }
+    public void TransactionCommit()throws Exception{
+        try{
+            if(Conexion != null){
+                Conexion.TransactionCommit();
+            }
+        }catch(Exception ex){
+            throw ex;
+        }
+    }
+    public void TransactionRollBack()throws Exception{
+        try{
+            if(Conexion != null){
+                Conexion.TransactionRollBack();
+            }
+        }catch(Exception ex){
+            throw ex;
+        }
+    }
+    
+    public void AddParameter(int Index, Object value, int SqlDbType)throws Exception{
+        try{
+            Conexion.AddParameter(Index, value, SqlDbType);
+        }catch(Exception ex){
+            throw ex;
+        }
+    }
+    
+    public void AddParameter(int Index, int SqlDbType)throws Exception{
+        try{
+            Conexion.AddParameter(Index, SqlDbType);
+        }catch(Exception ex){
+            throw ex;
+        }
+    }
+    
+    public ResultSet ExecuteQuery(CommandType tipo, String SQL)throws Exception{
+        ResultSet Resultados;
+        try{
+            Resultados = Conexion.ExecuteQuery(tipo, SQL);
+        }catch(Exception ex){
+            throw ex;
+        }
+        return Resultados;
+    }
+    
+    public int ExecuteUpdate(CommandType tipo, String SQL)throws Exception {
+        int NumRegistros = 0;
+        try{
+            NumRegistros = Conexion.ExecuteUpdate(tipo, SQL);
+        }catch(Exception ex){
+            throw ex;
+        }
+        return NumRegistros;
+    }
+    
+    public Parameter getParameter(int Index)throws Exception {
+        Parameter ParametroOuPut = null;
+        try{
+            ParametroOuPut = Conexion.getParameter(Index);
+        }catch(Exception ex){
+            throw ex;
+        }
+        return ParametroOuPut;
+    }
+    public static String getSERVER() {
+        return SERVER;
+    }
+    public static void setSERVER(String aSERVER) {
+        SERVER = aSERVER;
+    }
+    public static String getDATABASE() {
+        return DATABASE;
+    }
+    public static void setDATABASE(String aDATABASE) {
+        DATABASE = aDATABASE;
+    }
+    public static String getUSER() {
+        return USER;
+    }
+    public static void setUSER(String aUSER) {
+        USER = aUSER;
+    }
+    public static String getPASSWORD() {
+        return PASSWORD;
+    }
+    public static void setPASSWORD(String aPASSWORD) {
+        PASSWORD = aPASSWORD;
+    }
+
+}

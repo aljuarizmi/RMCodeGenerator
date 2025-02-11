@@ -1,0 +1,72 @@
+package #Namespace#;
+
+/**
+ *
+ * @author Jackie Giovanni
+ */
+public class Parameter {
+
+    private Direction Direction;
+    private String ParameterName;
+    private int SqlDbType;
+    private Object Value;
+    private int Size;
+    private int Index;
+    private boolean NullValue;
+    
+    public Direction getDirection() {
+        return Direction;
+    }
+
+    public void setDirection(Direction Direction) {
+        this.Direction = Direction;
+    }
+
+    public String getParameterName() {
+        return ParameterName;
+    }
+
+    public void setParameterName(String ParameterName) {
+        this.ParameterName = ParameterName;
+    }
+
+    public int getSqlDbType() {
+        return SqlDbType;
+    }
+
+    public void setSqlDbType(int SqlDbType) {
+        this.SqlDbType = SqlDbType;
+    }
+
+    public Object getValue() {
+        return Value;
+    }
+
+    public void setValue(Object Value) {
+        this.Value = Value;
+    }
+
+    public int getSize() {
+        return Size;
+    }
+
+    public void setSize(int Size) {
+        this.Size = Size;
+    }
+
+    public int getIndex() {
+        return Index;
+    }
+
+    public void setIndex(int Index) {
+        this.Index = Index;
+    }
+
+    public boolean isNullValue() {
+        return NullValue;
+    }
+
+    public void setNullValue(boolean NullValue) {
+        this.NullValue = NullValue;
+    }
+}

@@ -1,0 +1,21 @@
+using System;
+using System.Collections;
+using System.Configuration;
+using System.Data;
+using System.Data.SqlClient;
+//using System.Collections.Generic;
+using System.Text;
+
+
+namespace #Namespace#.Data.SqlServer {
+	public class UtilDA
+	{
+		public static string connectionString()
+		{
+			string conString;
+			conString=ConfigurationManager.AppSettings["connectionString"];
+			return conString;
+		}
+		
+	}
+}

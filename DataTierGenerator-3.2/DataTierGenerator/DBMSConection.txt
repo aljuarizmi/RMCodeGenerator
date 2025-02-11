@@ -1,0 +1,669 @@
+package #Namespace#;
+
+import java.sql.CallableStatement;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Types;
+import java.util.ArrayList;
+import java.util.List;
+//
+//
+// @author Jackie Giovanni
+//
+public class DBMSConection {
+
+    private List <Parameter> Parameter;
+    private Connection Conection;
+    private ResultSet Resultset;
+    private PreparedStatement PreparedStatement;
+    private CallableStatement CallableStatement;
+    private String DATABASE;
+    private String SERVER;
+    private String USER;
+    private String PASSWORD;
+    private String PORT;
+    private String Parametros;
+
+    public DBMSConection(){
+        this.Parameter = new ArrayList<Parameter>();
+        this.DATABASE = "";
+        this.SERVER = "";
+        this.USER = "";
+        this.PASSWORD = "";
+        this.PORT = "";
+        this.Parametros = "";
+    }
+       
+    /**
+    * Asigna el valor del objeto al parametro designado.
+    *
+    * @param Index el primer parametro es 1, el segundo es 2, ...
+    * @param Value el objeto que contiene el valor del parametro de entrada
+    * @param SqlDbType el tipo de dato SQL (definido en <code>java.sql.Types</code>) para
+    *                      ser enviado a la base de datos
+    * @exception SQLException si ocurre un error al acceder a la base de datos
+    * @see #AddParameter(int Index, Object value, int SqlDbType, int Scale)
+    * @see #AddParameter(int Index, Object value, int SqlDbType, int Scale, JDBCDirection Direction)
+    * @see #AddParameter(String ParameterName, Object value, int SqlDbType)
+    * @see #AddParameter(String ParameterName, Object value, int SqlDbType, int Scale)
+    * @see #AddParameter(String ParameterName, Object value, int SqlDbType, int Scale, JDBCDirection Direction)
+    */
+    public void AddParameter(int Index, Object Value, int SqlDbType)throws Exception{
+        JDBCParameter Parametro;
+        try{
+            if(Index <= 0){
+                throw new Exception("No se puede asignar un valor cero o negativo como indice del parametro\nEl valor debe ser mayor a cero");
+            }
+            Parametro = new JDBCParameter();
+            Parametro.setIndex(Index);
+            Parametro.setValue(Value);
+            Parametro.setDirection(JDBCDirection.INPUT);
+            Parametro.setSqlDbType(SqlDbType);
+            this.Parameter.add(Parametro);
+        }catch(Exception ex){
+            throw ex;
+        }finally{
+            Parametro = null;
+        }
+    }
+
+    /**
+    * Asigna el valor del objeto al parametro designado.
+    *
+    * @param Index el primer parametro es 1, el segundo es 2, ...
+    * @param Value el objeto que contiene el valor del parametro de entrada
+    * @param SqlDbType el tipo de dato SQL (definido en <code>java.sql.Types</code>) para
+    *                      ser enviado a la base de datos
+    * @param Scale para <code>java.sql.Types.DECIMAL</code> o <code>java.sql.Types.NUMERIC</code> , este el número de dígitos después del punto decimal. Para los demas tipos este valor será ignorado.
+    * @exception SQLException si ocurre un error al acceder a la base de datos
+    * @see #AddParameter(int Index, Object value, int SqlDbType)
+    * @see #AddParameter(int Index, Object value, int SqlDbType, int Scale, JDBCDirection Direction)
+    * @see #AddParameter(String ParameterName, Object value, int SqlDbType)
+    * @see #AddParameter(String ParameterName, Object value, int SqlDbType, int Scale)
+    * @see #AddParameter(String ParameterName, Object value, int SqlDbType, int Scale, JDBCDirection Direction)
+    */
+    public void AddParameter(int Index, Object Value, int SqlDbType, int Scale)throws Exception{
+        JDBCParameter Parametro;
+        try{
+            if(Index <= 0){
+                throw new Exception("No se puede asignar un valor cero o negativo como indice del parametro\nEl valor debe ser mayor a cero");
+            }
+            Parametro = new JDBCParameter();
+            Parametro.setIndex(Index);
+            Parametro.setValue(Value);
+            Parametro.setDirection(JDBCDirection.INPUT);
+            Parametro.setSqlDbType(SqlDbType);
+            Parametro.setScale(Scale);
+            this.Parameter.add(Parametro);
+        }catch(Exception ex){
+            throw ex;
+        }finally{
+            Parametro = null;
+        }
+    }
+
+    /**
+    * Asigna el valor del objeto al parametro designado.
+    *
+    * @param Index el primer parametro es 1, el segundo es 2, ...
+    * @param Value el objeto que contiene el valor del parametro de entrada
+    * @param SqlDbType el tipo de dato SQL (definido en <code>java.sql.Types</code>) para
+    *                      ser enviado a la base de datos
+    * @param Scale para <code>java.sql.Types.DECIMAL</code> o <code>java.sql.Types.NUMERIC</code> , este el número de dígitos después del punto decimal. Para los demas tipos este valor será ignorado.
+    * @param Direction definido en <code>JDBCDirection</code> indica si el parametro es un parametro de entrada o salida. <code>INPUT</code>: parametro de entrada, <code>OUTPUT</code>: parametro de salida
+    * @exception <code>SQLException</code> si ocurre un error al acceder a la base de datos
+    * @see #AddParameter(int Index, Object value, int SqlDbType)
+    * @see #AddParameter(int Index, Object value, int SqlDbType, int Scale)
+    * @see #AddParameter(String ParameterName, Object value, int SqlDbType)
+    * @see #AddParameter(String ParameterName, Object value, int SqlDbType, int Scale)
+    * @see #AddParameter(String ParameterName, Object value, int SqlDbType, int Scale, JDBCDirection Direction)
+    */
+    public void AddParameter(int Index, Object Value, int SqlDbType, int Scale, JDBCDirection Direction)throws Exception{
+        JDBCParameter Parametro;
+        try{
+            if(Index <= 0){
+                throw new Exception("No se puede asignar un valor cero o negativo como indice del parametro\nEl valor debe ser mayor a cero");
+            }
+            Parametro = new JDBCParameter();
+            Parametro.setIndex(Index);
+            Parametro.setValue(Value);
+            Parametro.setDirection(Direction);
+            Parametro.setSqlDbType(SqlDbType);
+            Parametro.setScale(Scale);
+            this.Parameter.add(Parametro);
+        }catch(Exception ex){
+            throw ex;
+        }finally{
+            Parametro = null;
+        }
+    }
+
+    /**
+    * Asigna el valor del objeto al parametro designado.
+    *
+    * @param ParameterName nombre del parametro.
+    * @param Value el objeto que contiene el valor del parametro de entrada
+    * @param SqlDbType el tipo de dato SQL (definido en <code>java.sql.Types</code>) para
+    *                      ser enviado a la base de datos
+    * @exception SQLException si ocurre un error al acceder a la base de datos
+    * @see #AddParameter(int Index, Object value, int SqlDbType)
+    * @see #AddParameter(int Index, Object value, int SqlDbType, int Scale)
+    * @see #AddParameter(int Index, Object value, int SqlDbType, int Scale, JDBCDirection Direction)
+    * @see #AddParameter(String ParameterName, Object value, int SqlDbType, int Scale)
+    * @see #AddParameter(String ParameterName, Object value, int SqlDbType, int Scale, JDBCDirection Direction)
+    */
+    public void AddParameter(String ParameterName, Object Value, int SqlDbType)throws Exception{
+        JDBCParameter Parametro;
+        try{
+            if(ParameterName == null){
+                throw new Exception("No se puede asignar un valor nulo al nombre del parametro");
+            }else if(ParameterName.trim().equals("")){
+                throw new Exception("No se puede asignar un valor vacío al nombre del parametro");
+            }
+            Parametro = new JDBCParameter();
+            Parametro.setParameterName(ParameterName);
+            Parametro.setValue(Value);
+            Parametro.setDirection(JDBCDirection.INPUT);
+            Parametro.setSqlDbType(SqlDbType);
+            this.Parameter.add(Parametro);
+        }catch(Exception ex){
+            throw ex;
+        }finally{
+            Parametro = null;
+        }
+    }
+
+    /**
+    * Asigna el valor del objeto al parametro designado.
+    *
+    * @param ParameterName nombre del parametro.
+    * @param Value el objeto que contiene el valor del parametro de entrada
+    * @param SqlDbType el tipo de dato SQL (definido en <code>java.sql.Types</code>) para
+    *                      ser enviado a la base de datos
+    * @param Scale para <code>java.sql.Types.DECIMAL</code> o <code>java.sql.Types.NUMERIC</code> , este el número de dígitos después del punto decimal. Para los demas tipos este valor será ignorado.
+    * @exception SQLException si ocurre un error al acceder a la base de datos
+    * @see #AddParameter(int Index, Object value, int SqlDbType)
+    * @see #AddParameter(int Index, Object value, int SqlDbType, int Scale)
+    * @see #AddParameter(int Index, Object value, int SqlDbType, int Scale, JDBCDirection Direction)
+    * @see #AddParameter(String ParameterName, Object value, int SqlDbType)
+    * @see #AddParameter(String ParameterName, Object value, int SqlDbType, int Scale, JDBCDirection Direction)
+    */
+    public void AddParameter(String ParameterName, Object Value, int SqlDbType, int Scale)throws Exception{
+        JDBCParameter Parametro;
+        try{
+            if(ParameterName == null){
+                throw new Exception("No se puede asignar un valor nulo al nombre del parametro");
+            }else if(ParameterName.trim().equals("")){
+                throw new Exception("No se puede asignar un valor vacío al nombre del parametro");
+            }
+            Parametro = new JDBCParameter();
+            Parametro.setParameterName(ParameterName);
+            Parametro.setValue(Value);
+            Parametro.setDirection(JDBCDirection.INPUT);
+            Parametro.setSqlDbType(SqlDbType);
+            Parametro.setScale(Scale);
+            this.Parameter.add(Parametro);
+        }catch(Exception ex){
+            throw ex;
+        }finally{
+            Parametro = null;
+        }
+    }
+
+    /**
+    * Asigna el valor del objeto al parametro designado.
+    *
+    * @param ParameterName nombre del parametro.
+    * @param Value el objeto que contiene el valor del parametro de entrada
+    * @param SqlDbType el tipo de dato SQL (definido en <code>java.sql.Types</code>) para
+    *                      ser enviado a la base de datos
+    * @param Scale para <code>java.sql.Types.DECIMAL</code> o <code>java.sql.Types.NUMERIC</code> , este el número de dígitos después del punto decimal. Para los demas tipos este valor será ignorado.
+    * @param Direction definido en <code>JDBCDirection</code> indica si el parametro es un parametro de entrada o salida. <code>INPUT</code>: parametro de entrada, <code>OUTPUT</code>: parametro de salida
+    * @exception <code>SQLException</code> si ocurre un error al acceder a la base de datos
+    * @see #AddParameter(int Index, Object value, int SqlDbType)
+    * @see #AddParameter(int Index, Object value, int SqlDbType, int Scale)
+    * @see #AddParameter(int Index, Object value, int SqlDbType, int Scale, JDBCDirection Direction)
+    * @see #AddParameter(String ParameterName, Object value, int SqlDbType)
+    * @see #AddParameter(String ParameterName, Object value, int SqlDbType, int Scale)
+    */
+    public void AddParameter(String ParameterName, Object Value, int SqlDbType, int Scale, JDBCDirection Direction)throws Exception{
+        JDBCParameter Parametro;
+        try{
+            if(ParameterName == null){
+                throw new Exception("No se puede asignar un valor nulo al nombre del parametro");
+            }else if(ParameterName.trim().equals("")){
+                throw new Exception("No se puede asignar un valor vacío al nombre del parametro");
+            }
+            Parametro = new JDBCParameter();
+            Parametro.setParameterName(ParameterName);
+            Parametro.setValue(Value);
+            Parametro.setDirection(Direction);
+            Parametro.setSqlDbType(SqlDbType);
+            Parametro.setScale(Scale);
+            this.Parameter.add(Parametro);
+        }catch(Exception ex){
+            throw ex;
+        }finally{
+            Parametro = null;
+        }
+    }
+
+    private void AddParameters(JDBCCommandType tipo)throws Exception {
+        try{
+            //Agregamos los parametros al Objeto CallableStatement ó PreparedStatement
+            if (tipo == JDBCCommandType.STORE_PROCEDURE){
+                for (int i = 0; i< this.Parameter.size(); i++){
+                    if (this.Parameter.get(i).getDirection() == JDBCDirection.OUTPUT){
+                        switch(this.Parameter.get(i).getSqlDbType()){
+                            case Types.DECIMAL:
+                            case Types.NUMERIC:
+                                if(this.Parameter.get(i).getIndex()>0){
+                                    this.CallableStatement.registerOutParameter(this.Parameter.get(i).getIndex(), this.Parameter.get(i).getSqlDbType(),this.Parameter.get(i).getScale());
+                                }else{
+                                    this.CallableStatement.registerOutParameter(this.Parameter.get(i).getParameterName(), this.Parameter.get(i).getSqlDbType(),this.Parameter.get(i).getScale());
+                                }
+                                break;
+                            default:
+                                if(this.Parameter.get(i).getIndex()>0){
+                                    this.CallableStatement.registerOutParameter(this.Parameter.get(i).getIndex(), this.Parameter.get(i).getSqlDbType());
+                                }else{
+                                    this.CallableStatement.registerOutParameter(this.Parameter.get(i).getParameterName(), this.Parameter.get(i).getSqlDbType());
+                                }
+                                break;
+                        }
+                    }else {
+                        if (this.Parameter.get(i).getValue() == null){
+                            if(this.Parameter.get(i).getIndex()>0){
+                                this.CallableStatement.setNull(this.Parameter.get(i).getIndex(), this.Parameter.get(i).getSqlDbType());
+                            }else{
+                                this.CallableStatement.setNull(this.Parameter.get(i).getParameterName(), this.Parameter.get(i).getSqlDbType());
+                            }
+                        }else{
+                            if(this.Parameter.get(i).getIndex()>0){
+                                this.CallableStatement.setObject(this.Parameter.get(i).getIndex(), this.Parameter.get(i).getValue(),this.Parameter.get(i).getSqlDbType(),this.Parameter.get(i).getScale());
+                            }else{
+                                this.CallableStatement.setObject(this.Parameter.get(i).getParameterName(), this.Parameter.get(i).getValue(),this.Parameter.get(i).getSqlDbType(),this.Parameter.get(i).getScale());
+                            }
+                        }
+                    }
+                }
+            }else if (tipo == JDBCCommandType.COMMAND_TEXT){
+                for (int i = 0; i< this.Parameter.size(); i++){
+                    if (this.Parameter.get(i).getValue() == null){
+                        this.PreparedStatement.setNull(this.Parameter.get(i).getIndex(), this.Parameter.get(i).getSqlDbType());
+                    }else{
+                        this.PreparedStatement.setObject(this.Parameter.get(i).getIndex(), this.Parameter.get(i).getValue(),this.Parameter.get(i).getSqlDbType(),this.Parameter.get(i).getScale());
+                    }
+                }
+            }
+        }catch(Exception ex){
+             throw ex;
+        }
+    }
+
+    private void AddParameters()throws Exception {
+        try{
+            for (int i = 0; i< this.Parameter.size(); i++){
+                this.Parametros = this.Parametros + "?";
+                if (i < (this.Parameter.size()-1)){
+                    this.Parametros = this.Parametros + ",";
+                }
+            }
+        }catch(Exception ex){
+            throw ex;
+        }
+    }
+
+    private void ClearParameters()throws Exception {
+        try{
+            this.Parameter.clear();
+            this.Parametros = "";
+        }catch(Exception ex){
+            throw ex;
+        }
+    }
+
+    /**
+     * Ejecuta una sentencia SQL, que puede ser <code>INSERT</code>, <code>UPDATE</code> o
+     * <code>DELETE</code> ; o una sentencia SQL que no retorna valor,
+     * similar a una sentencia DDL.
+     *
+     * @param tipo parametro de tipo <code>JDBCCommandType.CommandType</code> que contiene el tipo de comando
+     *        a ejecutar. <code>COMMAND_TEXT</code>: sentencia SQL, <code>STORE_PROCEDURE</code>: procedimiento almacenado o funcion.
+     * @param SQL parametro que contiene el nombre del Store Procedure o una sentencia SQL valida
+     * @return (1) el numero de filas afectadas para las sentencias <code>INSERT</code>, <code>UPDATE</code>,
+     *         o <code>DELETE</code>, ó
+     *         (2) 0 para las sentencias SQL que no devuelven valor
+     * @exception SQLException si ocurre un error al acceder a la base de datos o la
+     *            sentencia SQL devuelve un objeto del tipo <code>ResultSet</code>
+     * @see #ExecuteQuery(JDBCCommandType,String)
+     */
+    public int ExecuteUpdate(JDBCCommandType tipo, String SQL)throws Exception {
+        int NumRegistros = 0;
+        try{
+            if (tipo == null){
+                throw new Exception("No se ha especificado el tipo de comando a ejecutar");
+            }
+            if (SQL == null){
+                throw new Exception("No se ha especificado la consulta o comando SQL");
+            }
+            if (SQL.trim().equals("")){
+                throw new Exception("No se ha especificado la consulta o comando SQL");
+            }
+            OpenConection();
+            if (tipo == JDBCCommandType.STORE_PROCEDURE){
+                this.AddParameters();
+                this.CallableStatement = this.Conection.prepareCall("{ call " + SQL + " (" + this.Parametros + ")}");
+                this.AddParameters(tipo);
+                NumRegistros = this.CallableStatement.executeUpdate();
+                this.ClearParameters();
+            }else if (tipo == JDBCCommandType.COMMAND_TEXT){
+                this.PreparedStatement = this.Conection.prepareStatement(SQL);
+                this.AddParameters(tipo);
+                NumRegistros = this.PreparedStatement.executeUpdate();
+                this.ClearParameters();
+            }
+        }catch (Exception ex){
+            throw ex;
+        }finally{
+            
+        }
+        return NumRegistros;
+    }
+
+    /**
+     * Executes the SQL query in this <code>PreparedStatement</code> object
+     * and returns the <code>ResultSet</code> object generated by the query.
+     * @param tipo parametro de tipo <code>JDBCCommandType.CommandType</code> que contiene el tipo de comando
+     *        a ejecutar. <code>COMMAND_TEXT</code>: sentencia SQL, <code>STORE_PROCEDURE</code>: procedimiento almacenado o funcion.
+     * @param SQL parametro que contiene el nombre del Store Procedure o una sentencia SQL valida
+     * @return un Objeto <code>ResultSet</code> que contiene la data originada por la consulta; nunca <code>null</code>
+     * @exception SQLException si ocurre un error o la sentencia SQL no retorna un objecto <code>ResultSet</code>
+     * @see #ExecuteUpdate(JDBCCommandType,String)
+     */
+    public ResultSet ExecuteQuery(JDBCCommandType tipo, String SQL)throws Exception{
+        ResultSet Resultados = null;
+         try{
+            if (tipo == null){
+                throw new Exception("No se ha especificado el tipo de comando a ejecutar");
+            }
+            if (SQL == null){
+                throw new Exception("No se ha especificado la consulta o comando SQL");
+            }            
+            if (SQL.trim().equals("")){
+                throw new Exception("No se ha especificado la consulta o comando SQL");
+            }
+            OpenConection();
+            if (tipo == JDBCCommandType.STORE_PROCEDURE){
+                this.AddParameters();
+                this.CallableStatement = this.Conection.prepareCall("{ call " + SQL + " (" + this.Parametros + ")}",ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+                this.AddParameters(tipo);
+                this.Resultset = this.CallableStatement.executeQuery();
+                Resultados = this.Resultset;
+                this.ClearParameters();
+            }else if (tipo == JDBCCommandType.COMMAND_TEXT){
+                this.PreparedStatement = this.Conection.prepareStatement(SQL,ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+                this.AddParameters(tipo);
+                this.Resultset = this.PreparedStatement.executeQuery();
+                Resultados = this.Resultset;
+                this.ClearParameters();
+            }
+         }catch(Exception ex){
+             throw ex;
+         }finally{
+
+         }
+        return Resultados;
+    }
+
+    /**
+     * Este metodo retorna el valor correspondiente al parametro que ha sido registrado como
+     * <code>JDBCDirection.OUTPUT</code>.
+     *
+     * @param ParameterIndex el primer parametro es 1, el segundo es 2...etc.
+     *        
+     * @return Un objecto de tipo <code>java.lang.Object</code> conteniendo el valor del parametro de salida.
+     * @exception SQLException si ocurre un error al acceder a la base de datos.
+     * @see #getParameter(String ParameterName)
+     */
+    public Object getParameter(int ParameterIndex)throws Exception {
+        Object ValueOutPut = null;
+        try{
+            if(ParameterIndex <= 0){
+                throw new Exception("No se puede asignar un valor cero o negativo como indice del parametro\nEl valor debe ser mayor a cero");
+            }
+            ValueOutPut = this.CallableStatement.getObject(ParameterIndex);
+        }catch(Exception ex){
+            throw ex;
+        }
+        return ValueOutPut;
+    }
+
+    /**
+     * This method returns a Java object whose type corresponds to the JDBC
+     * type that was registered for this parameter using the method
+     * <code>registerOutParameter</code>.  By registering the target JDBC
+     * type as <code>JDBCDirection.OUTPUT</code>, this method can be used
+     * to read database-specific abstract data types.
+     * @param ParameterName nombre del parametro
+     * @return Un <code>java.lang.Object</code> conteniendo el valor del parametro de tipo OUT.
+     * @exception SQLException Si ocurre un error al acceder a la base de datos
+     * @see #getParameter(int ParameterIndex)
+     * @since 1.4
+     */
+    public Object getParameter(String ParameterName)throws Exception {
+        Object ValueOutPut = null;
+        try{
+            if(ParameterName == null){
+                throw new Exception("No se puede asignar un valor nulo al nombre del parametro");
+            }else if(ParameterName.trim().equals("")){
+                throw new Exception("No se puede asignar un valor vacío al nombre del parametro");
+            }
+            ValueOutPut = this.CallableStatement.getObject(ParameterName);
+        }catch(Exception ex){
+            throw ex;
+        }
+        return ValueOutPut;
+    }
+
+    private void OpenConection()throws Exception{
+        try{
+            if(this.SERVER == null){
+                throw new Exception("No se puede establecer el nombre del servidor con un valor nulo");
+            }
+            if(this.DATABASE == null){
+                throw new Exception("No se puede establecer el nombre de la base de datos con un valor nulo");
+            }
+            if(this.USER == null){
+                throw new Exception("No se puede establecer el nombre del usuario con un valor nulo");
+            }
+            if(this.PASSWORD == null){
+                throw new Exception("No se puede establecer el password del usuario con un valor nulo");
+            }
+            if(this.PORT == null){
+                throw new Exception("No se puede establecer el número de puerto al servidor con un valor nulo");
+            }            
+            if(this.SERVER.trim().equals("")){
+                throw new Exception("No se ha especificado el nombre del servidor");
+            }
+            if(this.DATABASE.trim().equals("")){
+                throw new Exception("No se ha especificado el nombre de la base de datos");
+            }
+            if(this.USER.trim().equals("")){
+                throw new Exception("No se ha especificado el nombre de usuario");
+            }
+            if(this.PASSWORD.trim().equals("")){
+                throw new Exception("No se ha especificado el password del usuario");
+            }
+            if (this.PORT.trim().equals("")){
+                PORT = "#Puerto#";
+            }
+            if (this.Conection == null){
+                Class.forName("#Driver#");
+                this.Conection = DriverManager.getConnection(#Protocolo#,this.USER,this.PASSWORD);
+            }
+        }catch(Exception ex){
+            throw ex;
+        }
+    }
+
+    public void Dispose ()throws Exception{
+        try{
+            this.CloseConection();
+        }catch(Exception ex){
+            throw ex;
+        }
+    }
+
+    public Connection getConection()throws Exception{
+        try{
+            OpenConection();
+        }catch(Exception ex){
+            throw ex;
+        }
+        return this.Conection;
+    }
+    
+    private void CloseConection()throws Exception{
+        try{
+            if (this.CallableStatement != null){
+                this.CallableStatement.close();
+                this.CallableStatement = null;
+            }
+            if (this.PreparedStatement !=null){
+                this.PreparedStatement.close();
+                this.PreparedStatement = null;
+            }
+            if (this.Resultset != null){
+                this.Resultset.close();
+                this.Resultset = null;
+            }
+            if (this.Conection != null){
+                this.Conection.close();
+                this.Conection = null;
+            }
+        }catch(Exception ex){
+            throw ex;
+        }
+    }
+
+    /**
+     * Sets this connection's auto-commit mode to the given state.
+     * If a connection is in auto-commit mode, then all its SQL
+     * statements will be executed and committed as individual
+     * transactions.  Otherwise, its SQL statements are grouped into
+     * transactions that are terminated by a call to either
+     * the method <code>commit</code> or the method <code>rollback</code>.
+     * By default, new connections are in auto-commit
+     * mode.
+     * <P>
+     * The commit occurs when the statement completes or the next
+     * execute occurs, whichever comes first. In the case of
+     * statements returning a <code>ResultSet</code> object,
+     * the statement completes when the last row of the
+     * <code>ResultSet</code> object has been retrieved or the
+     * <code>ResultSet</code> object has been closed. In advanced cases, a single
+     * statement may return multiple results as well as output
+     * parameter values. In these cases, the commit occurs when all results and
+     * output parameter values have been retrieved.
+     * <P>
+     * <B>NOTE:</B>  If this method is called during a transaction, the
+     * transaction is committed.
+     *
+     * @param autoCommit <code>true</code> to enable auto-commit mode;
+     *         <code>false</code> to disable it
+     * @exception SQLException if a database access error occurs
+     * @see #getAutoCommit
+     */
+    public void TransactionBegin()throws Exception{
+        try{
+            OpenConection();
+            if (this.Conection != null){
+                this.Conection.setAutoCommit(false);
+            }
+        }catch(Exception ex){
+            throw ex;
+        }
+    }
+
+    /**
+     * Confirma todos los cambios hechos en la Base de Datos y libera
+     * los bloqueos realizados
+     *
+     * @exception SQLException Si ocurre un error al acceder a la Base de Datos
+     *
+     * @see #TransactionBegin
+     */
+    public void TransactionCommit()throws Exception{
+        try{
+            if (this.Conection != null){
+                this.Conection.commit();
+                if (this.Conection.getAutoCommit() == false){
+                    this.Conection.setAutoCommit(true);
+                }
+            }
+        }catch(Exception ex){
+            throw ex;
+        }        
+    }
+
+    /**
+     * Deshace todos los cambios hechos en la transacción actual
+     *
+     * @exception SQLException Si ocurre un error al acceder a la Base de Datos
+     *            
+     * @see #TransactionCommit
+     */
+    public void TransactionRollBack()throws Exception{
+        try{
+            if (this.Conection != null){
+                this.Conection.rollback();
+            }
+        }catch(Exception ex){
+            throw ex;
+        }        
+    }
+    
+    public String getDATABASE() {
+        return DATABASE;
+    }
+
+    public void setDATABASE(String DATABASE) {
+        this.DATABASE = DATABASE;
+    }
+
+    public String getSERVER() {
+        return SERVER;
+    }
+
+    public void setSERVER(String SERVER) {
+        this.SERVER = SERVER;
+    }
+
+    public String getUSER() {
+        return USER;
+    }
+
+    public void setUSER(String USER) {
+        this.USER = USER;
+    }
+
+    public String getPASSWORD() {
+        return PASSWORD;
+    }
+
+    public void setPASSWORD(String PASSWORD) {
+        this.PASSWORD = PASSWORD;
+    }
+
+    public String getPORT() {
+        return PORT;
+    }
+
+    public void setPORT(String PORT) {
+        this.PORT = PORT;
+    }
+
+}

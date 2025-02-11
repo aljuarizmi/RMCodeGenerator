@@ -1,0 +1,13 @@
+package #Namespace#;
+
+/**
+ *
+ * @author Jackie Giovanni
+ */
+public class Direction {
+  private int value;
+  private Direction(int nm) { value = nm; }
+  public static final Direction
+    INPUT = new Direction(1),   
+    OUTPUT = new Direction(2);
+}

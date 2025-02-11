@@ -1,0 +1,641 @@
+using System.Text;
+using System.Reflection;
+using System.Data.SqlClient;
+using System.Data;
+using System.ComponentModel;
+using System.Configuration;
+using System.Collections.Generic;
+using System.Collections;
+using System;
+  
+namespace #Namespace#.BusinessObjects
+{
+    //''' <summary>
+    //''' Provides a sorted view into an existing IList (collection).
+    //''' Osea Provee una sorted view dentro de una lista de genericos
+    //''' </summary>
+
+    public class SortedView : IList, IBindingList {
+
+        #region ListItem class
+
+        private class ListItem:IComparable{
+
+            #region Class Fields
+                        public object Key;
+                        public object Item;
+            #endregion
+
+            #region Class Constructor
+                        public ListItem(object key, object item)
+                        {   this.Key = key;
+                            this.Item = item;
+                        }
+            #endregion
+
+            #region Class Methods
+            public int CompareTo(object obj)
+            {
+                object target=((ListItem)obj).Key;
+                
+                if (Key is IComparable)
+                {
+                    return ((IComparable)Key).CompareTo(target);
+                }
+                else if (Key.Equals(target))
+                {
+                    return 0;
+                }
+                else
+                {
+                    return Key.ToString().CompareTo(target.ToString());
+                }
+            }
+
+
+
+            public override string  ToString(){
+                return Key.ToString();
+            }
+            #endregion
+
+        }
+
+        #endregion
+
+        #region  Sorted enumerator 
+
+        private class SortedEnumerator:IEnumerator
+        {
+
+        #region Class Fields
+                    private ArrayList mSortIndex  ;
+                    private ListSortDirection mSortOrder;
+                    private Int32 index; 
+        #endregion
+
+        #region Class Constructor
+                    public SortedEnumerator(ArrayList sortIndex, ListSortDirection direction)
+                    {   mSortIndex = sortIndex;
+                        mSortOrder = direction;
+                        Reset();
+                    }
+        #endregion
+
+        #region Class Property
+                    
+                    public object Current
+                    {
+                        get{ return ((ListItem)mSortIndex[index]).Item; }
+                    }
+        #endregion
+
+        #region Class Methods
+                   public Boolean MoveNext()
+                   {
+                        if (mSortOrder == ListSortDirection.Ascending)
+                        {
+                            if (index < mSortIndex.Count - 1)
+                            {
+                                index += 1;
+                                return true;
+                            }
+                            else{
+                                return false;
+                            }
+                        }
+                        else
+                        {   if (index > 0)
+                            {   index -= 1;
+                                return true;
+                            }
+                            else{
+                                return false;
+                            }
+                        }
+                   }
+
+                    public void Reset() 
+                    {
+                        if (mSortOrder == ListSortDirection.Ascending)
+                        {
+                            index = -1;
+                        }
+                        else
+                        {
+                            index = mSortIndex.Count;
+                        
+                        }
+                        
+                    }
+        #endregion
+
+        }
+
+        #endregion
+
+        #region Class Fields
+            private IList mList;
+            private Boolean mSupportsBinding;
+            private IBindingList mBindingList; 
+            private Boolean mSorted =false;
+            private PropertyDescriptor mSortBy;
+            private ListSortDirection mSortOrder = ListSortDirection.Ascending;
+            private ArrayList mSortIndex =new ArrayList(); 
+        #endregion
+
+        #region Class Constructor
+                //''' <summary>
+                //''' Creates a new view based on the provided IList object.
+                //''' </summary>
+                //''' <param name="list">The IList (collection) containing the data.</param>
+                public SortedView(IList list)
+                {   mList = list;
+                    if ( mList == typeof(IBindingList) )
+                    {
+                        mSupportsBinding = true;
+                        mBindingList = (IBindingList)mList;
+                        mBindingList.ListChanged += new ListChangedEventHandler(SourceChanged);
+                    }
+
+                }
+        #endregion
+
+        #region Class Methods
+        private void SourceChanged(Object sender, ListChangedEventArgs e)
+        {   if (mSorted)
+            {   if(e.ListChangedType == ListChangedType.ItemAdded) 
+                {   if (mSortOrder == ListSortDirection.Ascending)
+                    {
+                        mSortIndex.Add(new ListItem(mSortBy.GetValue(mList[e.NewIndex]), mList[e.NewIndex]));
+                    }
+                    else
+                    {    mSortIndex.Insert(0, new ListItem(mSortBy.GetValue(mList[e.NewIndex]), mList[e.NewIndex]));
+                    }
+                    ListChanged(this, new ListChangedEventArgs(ListChangedType.ItemAdded, mSortIndex.Count - 1));
+                }
+                else
+                {    DoSort();
+                }
+            }
+            else
+            {   ListChanged(this, e);}
+        }
+        #endregion
+
+        #region  Sort/Unsort
+        private void DoSort(){
+            mSortIndex.Clear();
+
+            if (mSortBy == null)
+            {
+                foreach( Object obj in mList)
+                {    mSortIndex.Add(new ListItem(obj, obj));
+                }
+            }else
+            {    foreach(Object obj in mList)
+                {mSortIndex.Add(new ListItem(mSortBy.GetValue(obj), obj)); }
+            }
+            mSortIndex.Sort();
+            mSorted = true;
+            ListChanged(this, new ListChangedEventArgs(ListChangedType.Reset, 0));
+        }
+
+        private void UndoSort(){
+            mSortIndex.Clear();
+            mSortBy = null;
+            mSortOrder = ListSortDirection.Ascending;
+            mSorted = false;
+            ListChanged(this, new ListChangedEventArgs(ListChangedType.Reset, 0));
+        }
+        
+        #endregion
+
+        #region  IList 
+
+        //''' <summary>
+        //''' Copies the underlying data to an array.
+        //''' </summary>
+        //''' <param name="array">Array to hold the data.</param>
+        //''' <param name="index">Index in the array to start the copy.</param>
+        public void CopyTo(Array array , Int32  index) 
+        {    mList.CopyTo(array, index);
+        }
+
+        //''' <summary>
+        //''' Returns the number of items in the collection.
+        //''' </summary>
+        public Int32 Count{
+            get
+            {    return mList.Count;
+            }
+        }
+
+        //''' <summary>
+        //''' Returns True if the underlying IList object is synchronized.
+        //''' </summary>
+        public Boolean IsSynchronized
+        {
+            get
+            {      return mList.IsSynchronized;  
+            }
+        }
+
+        //''' <summary>
+        //''' Returns the SyncRoot object for the underling IList object.
+        //''' </summary>
+        public Object SyncRoot
+        { get
+        {      return mList.SyncRoot;
+        }
+        }
+
+        //''' <summary>
+        //''' Returns the enumerator for the list.
+        //''' </summary>
+        //''' <remarks>
+        //''' If the view is sorted, the enumerator provides a sorted
+        //''' view of the data. If the view is not sorted, the enumerator
+        //''' from the underlying IList object is used.
+        //''' </remarks>
+        public IEnumerator GetEnumerator()
+        {   if (IsSorted )
+            {return new SortedEnumerator(mSortIndex, mSortOrder);}
+            else
+            {    return mList.GetEnumerator();  }
+        }
+
+        //''' <summary>
+        //''' Implemented by IList source object.
+        //''' </summary>
+        public Int32 Add(Object value)
+        {  return  mList.Add(value);            
+        }
+
+        //''' <summary>
+        //''' Implemented by IList source object.
+        //''' </summary>
+        public void Clear() 
+        {       mList.Clear();    }
+
+        //''' <summary>
+        //''' Returns True if the list contains the specified value.
+        //''' </summary>
+        public Boolean Contains(Object value)
+        {return mList.Contains(value);}
+        
+
+        //''' <summary>
+        //''' Returns the index of the specified value.
+        //''' </summary>
+        //''' <remarks>
+        //''' If the view is sorted then the index is the index 
+        //''' within the sorted list, not the underlying IList object.
+        //''' </remarks>
+        public Int32 IndexOf(Object value) 
+        {   if (mSorted)
+            {   int index=0;
+                foreach(ListItem item   in mSortIndex)
+                {   if (item.Item.Equals(value))
+                    {
+                        return index;
+                    }
+                    index += 1;
+                }
+                //' didn't find it...
+                return -1;
+            }
+            else{
+                return mList.IndexOf(value);
+            }
+        }
+
+        //''' <summary>
+        //''' Implemented by IList source object.
+        //''' </summary>
+        public void Insert(Int32 index, Object value)
+        { mList.Insert(index, value);
+        }
+
+        //''' <summary>
+        //''' Returns True if the underling IList object is fixed size.
+        //''' </summary>
+        public Boolean IsFixedSize 
+        {   
+            get
+            {   return mList.IsFixedSize;}            
+        }
+
+        //''' <summary>
+        //''' Returns True. The view is always read only.
+        //''' </summary>
+        public Boolean IsReadOnly
+        {   get
+            {    return true;}            
+        }
+
+        //''' <summary>
+        //''' Returns the item at the specified index. Does NOT allow setting a new
+        //''' value.
+        //''' </summary>
+        //''' <remarks>
+        //''' <para>
+        //''' If the list is sorted, this returns the items in the appropriate sorted
+        //''' order. Otherwise the order will match that of the underlying IList object.
+        //''' </para><para>
+        //''' Attempting to set the value will result in an exception. To set a value,
+        //''' set it in the underling IList object.
+        //''' </para>
+        //''' </remarks>
+        //''' <param name="index">The index of the item to return.</param>
+        //''' <returns>The item at the specified index.</returns>
+        public Object this[int index]
+        {   get
+            {  
+                if (mSorted) {
+                    return GetSortedItem(index);
+                }
+                else {
+                    return mList[index];
+                }
+
+            }
+            set {
+            if (mSorted) {
+                int pos = mList.IndexOf(GetSortedItem(index));
+                mList[pos] = value;
+                if (!mSupportsBinding) {
+                    DoSort();
+                }
+                else {
+                    mList[index] = value;
+                }
+            }
+        }
+
+        }
+
+        //''' <summary>
+        //''' Returns the appropriate item for an index
+        //''' based on the current sort.
+        //''' </summary>
+        private Object GetSortedItem(int index)
+        {   if (mSortOrder == ListSortDirection.Ascending)
+            { return ((ListItem)mSortIndex[index]).Item;}
+            else
+            { return ((ListItem)mSortIndex[mSortIndex.Count - 1 - index]).Item;}
+            
+        }
+
+        //''' <summary>
+        //''' Implemented by IList source object.
+        //''' </summary>
+        public void Remove(Object value)
+        {mList.Remove(value);}
+        
+
+        //''' <summary>
+        //''' Implemented by IList source object.
+        //''' </summary>
+        public void RemoveAt(int index)
+        {   if (mSorted)
+            {   int pos= mList.IndexOf(GetSortedItem(index));
+                mList.RemoveAt(pos);
+            }else
+            {    mList.RemoveAt(index);}
+            
+        }
+#endregion
+
+        #region  IBindingList 
+
+        //''' <summary>
+        //''' Implemented by IList source object.
+        //''' </summary>
+         public void AddIndex(System.ComponentModel.PropertyDescriptor property) {
+            if (mSupportsBinding) {
+                mBindingList.AddIndex(property);
+            }
+        }
+
+
+
+        //''' <summary>
+        //''' Implemented by IList source object.
+        //''' </summary>
+        public object AddNew() {
+            if (mSupportsBinding) {
+                return mBindingList.AddNew();
+            }
+            return null;
+        }
+
+
+        //''' <summary>
+        //''' Implemented by IList source object.
+        //''' </summary>
+        public Boolean AllowEdit 
+        {   get
+            {   if (mSupportsBinding)
+                    return mBindingList.AllowEdit;
+                else{
+                    return false;
+                }
+            }
+        }
+
+        //''' <summary>
+        //''' Implemented by IList source object.
+        //''' </summary>
+        public Boolean AllowNew
+        {   get
+            {   if( mSupportsBinding)
+                {return mBindingList.AllowNew;}
+                else
+                {return false;}                
+            }
+        }
+
+        //''' <summary>
+        //''' Implemented by IList source object.
+        //''' </summary>
+       public bool AllowRemove {
+            get {
+                if (mSupportsBinding) {
+                    return mBindingList.AllowRemove;
+                }
+                else {
+                    return false;
+                }
+            }
+        }
+
+
+        //''' <summary>
+        //''' Applies a sort to the view.
+        //''' </summary>
+        //''' <param name="property">The text name of the property on which to sort.</param>
+        //''' <param name="direction">The direction to sort the data.</param>
+        public void ApplySort(string property, System.ComponentModel.ListSortDirection direction)
+        {    Type itemType = null;
+
+            if (property.Length > 0) 
+            {    //' get default property
+                Type t  = ((Object)mList).GetType();
+                MemberInfo[] defs  = t.GetDefaultMembers();
+                foreach (MemberInfo  member in defs)
+                {   if (member.MemberType == MemberTypes.Property )
+                    {   // ' there is a default property so find its return type
+                        itemType = ((PropertyInfo)member).GetGetMethod().ReturnType;
+                        break;
+                    }
+                }
+
+                if (itemType==null)
+                {    //' we didn't get the type from the default property
+                    //' so we must get it from the first item in the list
+                    if (mList.Count > 0)
+                    {itemType = mList[0].GetType();}
+                    else
+                    {    throw new Exception("Can not determine collection item type");}
+                    
+                }
+
+                PropertyDescriptorCollection props;
+                props = TypeDescriptor.GetProperties(itemType);
+                foreach(PropertyDescriptor prop in props)
+                {   if (prop.Name == property)
+                    {    mSortBy = prop;
+                         break;                       
+                    }
+                }
+            }
+
+            ApplySort(mSortBy, direction);
+        }
+
+        //''' <summary>
+        //''' Applies a sort to the view.
+        //''' </summary>
+        //''' <param name="property">A PropertyDescriptor for the property on which to sort.</param>
+        //''' <param name="direction">The direction to sort the data.</param>
+        public void ApplySort(System.ComponentModel.PropertyDescriptor property, System.ComponentModel.ListSortDirection direction) {
+            mSortBy = property;
+            mSortOrder = direction;
+            DoSort();
+        }
+
+
+
+        //''' <summary>
+        //''' Implemented by IList source object.
+        //''' </summary>
+       
+        public int Find(System.ComponentModel.PropertyDescriptor property, object key) {
+            if (mSupportsBinding) {
+                return mBindingList.Find(property, key);
+            }
+            return -1;
+        }
+        
+        //''' <summary>
+        //''' Returns True if the view is currently sorted.
+        //''' </summary>
+       public bool IsSorted {
+            get {
+                return mSorted;
+            }
+        }
+        
+        //''' <summary>
+        //''' Raised to indicate that the list's data has changed.
+        //''' </summary>
+        //''' <remarks>
+        //''' This event is raised if the underling IList object's data changes
+        //''' (assuming the underling IList also implements the IBindingList
+        //''' interface). It is also raised if the sort property or direction
+        //''' is changed to indicate that the view's data has changed.
+        //''' </remarks>
+        public event ListChangedEventHandler ListChanged;
+
+        //''' <summary>
+        //''' Implemented by IList source object.
+        //''' </summary>
+        public void RemoveIndex(System.ComponentModel.PropertyDescriptor property) {
+            if (mSupportsBinding) {
+                mBindingList.RemoveIndex(property);
+            }
+        }
+
+
+        // '' <summary>
+        // '' Removes any sort currently applied to the view.
+        // '' </summary>
+        public void RemoveSort() {
+            UndoSort();
+        }
+
+
+        // '' <summary>
+        // '' Returns the direction of the current sort.
+        // '' </summary>
+        public System.ComponentModel.ListSortDirection SortDirection {
+            get {
+                return mSortOrder;
+            }
+        }
+
+
+        //''' <summary>
+        //''' Returns the PropertyDescriptor of the current sort.
+        //''' </summary>
+        public System.ComponentModel.PropertyDescriptor SortProperty {
+            get {
+                return mSortBy;
+            }
+        }
+
+
+        //''' <summary>
+        //''' Returns True since this object does raise the
+        //''' ListChanged event.
+        //''' </summary>
+          public bool SupportsChangeNotification {
+            get {
+                return true;
+            }
+        }
+
+
+        //''' <summary>
+        //''' Implemented by IList source object.
+        //''' </summary>
+         public bool SupportsSearching {
+            get {
+                if (mSupportsBinding) {
+                    return mBindingList.SupportsSearching;
+                }
+                else {
+                    return false;
+                }
+            }
+        }
+
+
+        //''' <summary>
+        //''' Returns True. Sorting is supported.
+        //''' </summary>
+        public bool SupportsSorting {
+            get {
+                return true;
+            }
+        }
+
+
+
+#endregion
+
+    }
+   
+
+}

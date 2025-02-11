@@ -1,0 +1,37 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.12.35707.178 d17.12
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RMCodeGen", "RMCodeGen\RMCodeGen.csproj", "{3413F64A-243C-4960-B625-0BEFE07BAA0F}"
+EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "SetupRMCodeGen", "SetupRMASPXCodeGen\SetupRMASPXCodeGen.vdproj", "{50E162DE-D417-4952-A276-6813BDB36DA1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataTierGenerator", "DataTierGenerator-3.2\DataTierGenerator\DataTierGenerator.csproj", "{133398E8-37F1-4D54-AB03-061E8A3AC087}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wilco.SyntaxHighlighting", "Wilco.SyntaxHighlighting\Wilco.SyntaxHighlighting.csproj", "{18A6C758-559C-404C-B434-858051D3C73F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3413F64A-243C-4960-B625-0BEFE07BAA0F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3413F64A-243C-4960-B625-0BEFE07BAA0F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3413F64A-243C-4960-B625-0BEFE07BAA0F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3413F64A-243C-4960-B625-0BEFE07BAA0F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{50E162DE-D417-4952-A276-6813BDB36DA1}.Debug|Any CPU.ActiveCfg = Debug
+		{50E162DE-D417-4952-A276-6813BDB36DA1}.Release|Any CPU.ActiveCfg = Release
+		{133398E8-37F1-4D54-AB03-061E8A3AC087}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{133398E8-37F1-4D54-AB03-061E8A3AC087}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{133398E8-37F1-4D54-AB03-061E8A3AC087}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{133398E8-37F1-4D54-AB03-061E8A3AC087}.Release|Any CPU.Build.0 = Release|Any CPU
+		{18A6C758-559C-404C-B434-858051D3C73F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{18A6C758-559C-404C-B434-858051D3C73F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{18A6C758-559C-404C-B434-858051D3C73F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{18A6C758-559C-404C-B434-858051D3C73F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

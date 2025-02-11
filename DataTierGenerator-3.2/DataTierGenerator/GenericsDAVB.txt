@@ -1,0 +1,94 @@
+Imports System
+Imports System.Collections
+Imports System.Collections.Generic
+Imports System.Configuration
+Imports System.Data
+Imports System.Data.SqlClient
+Imports System.Reflection
+Imports System.Text
+Imports System.Type
+
+Namespace #Namespace#.Data.SqlServer
+
+#Region "MapperBase Class"
+
+    Public MustInherit Class MapperBase(Of T)
+
+        ''' <summary>
+        ''' Funcion que retorna una instancia de un objeto que va a ser elemento de la lista
+        ''' </summary>
+        Protected MustOverride Function Map(ByVal record As IDataRecord) As T
+        ''' <summary>
+        ''' Funcion que retorna una Lista Generica con Datos Cargados de una DataReader
+        ''' </summary>
+        Public Function MapAll(ByVal reader As IDataReader) As List(Of T)
+            Dim list As List(Of T)
+
+            list = New List(Of T)()
+            While reader.Read()
+                Try
+                    list.Add(Map(reader))
+                Catch
+                    Throw 'New ApplicationException("Exception Occured")
+                End Try
+            End While
+            Return list
+        End Function
+
+
+    End Class
+
+#End Region
+
+#Region "ObjectReaderBase Class"
+
+    Public MustInherit Class ObjectReaderBase(Of T)
+
+        Protected MustOverride Function GetMapper() As MapperBase(Of T)
+
+        ''' <summary>
+        ''' Funcion que retorna una Lista Generica de Un Tipo Especifico
+        ''' </summary>
+        Protected Function GetList(ByRef dre As IDataReader, ByRef objReaderBase As ObjectReaderBase(Of T)) As List(Of T)
+            Try
+                Dim List As List(Of T) = New List(Of T)
+                Dim mapper As MapperBase(Of T) = objReaderBase.GetMapper()
+                List = mapper.MapAll(dre)
+                Return List
+            Catch
+                Throw
+            Finally
+                dre.Close()
+            End Try
+        End Function
+
+    End Class
+
+#End Region
+
+    Public Class GenericoManager(Of T)
+
+        Delegate Function AssignObject(ByVal reader As IDataReader) As T
+        Private _AssigObject As AssignObject
+
+        Public Function GetList(ByVal reader As IDataReader) As List(Of T)
+            Dim list As New List(Of T)()
+            While reader.Read()
+                Try
+                    list.Add(_AssigObject(reader))
+                Catch
+                    Throw
+                End Try
+            End While
+            Return list
+        End Function
+
+        Public Sub SetMetodoAsignaObjeto(ByVal metodo As AssignObject)
+            _AssigObject = metodo
+        End Sub
+
+    End Class
+
+
+End Namespace
+

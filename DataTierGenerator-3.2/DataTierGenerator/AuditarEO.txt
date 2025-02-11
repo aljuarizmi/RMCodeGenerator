@@ -1,0 +1,62 @@
+using System;
+
+namespace #Namespace#.EntityObjects
+{
+    public interface IEAuditoria
+    {
+        string UsuarioRegistro { get; set; }
+        DateTime? FechaRegistro { get; set; }
+        String UsuarioModifica { get; set; }
+        DateTime? FechaModifica { get; set; }
+        String SituacionRegistro { get; set; }
+    }
+
+    [Serializable]
+    public class EAuditoria : IEAuditoria
+    {
+        protected String _strUsuarioRegistro;
+        protected DateTime? _dtFechaRegistro;
+        protected String _strUsuarioModifica;
+        protected DateTime? _dtFechaModifica;
+        protected String _strSituacionRegistro;
+
+        public EAuditoria()
+        {
+        }
+
+        #region Miembros de IEAuditoria
+
+        public String UsuarioRegistro
+        {
+            get { return this._strUsuarioRegistro; }
+            set { this._strUsuarioRegistro = value; }
+        }
+
+        public DateTime? FechaRegistro
+        {
+            get { return this._dtFechaRegistro; }
+            set { this._dtFechaRegistro = value; }
+        }
+
+        public String UsuarioModifica
+        {
+            get { return this._strUsuarioModifica; }
+            set { this._strUsuarioModifica = value; }
+        }
+
+        public DateTime? FechaModifica
+        {
+            get { return this._dtFechaModifica; }
+            set { this._dtFechaModifica = value; }
+        }
+
+        public String SituacionRegistro
+        {
+            get { return this._strSituacionRegistro; }
+            set { this._strSituacionRegistro = value; }
+        }
+
+        #endregion
+
+    }
+}

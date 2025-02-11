@@ -1,0 +1,540 @@
+using System;
+using System.Collections;
+using System.Configuration;
+using System.Data;
+using MySql.Data.MySqlClient;
+
+namespace #Namespace#.Data {
+	/// <summary>
+	/// Provides functionality for executing commands against a database.
+	/// </summary>
+	public sealed class MySqlClientUtility {
+		// Timeout for commands issued against a database; 10 minutes
+		private const int COMMAND_TIMEOUT = 600;
+		
+		/// <summary>
+		/// Constructor declared <code>private</code> to prevent instantiation.
+		/// </summary>
+		private MySqlClientUtility() {}
+		
+		/// <summary>
+		/// Returns the configured connection string.
+		/// </summary>
+		/// <returns>The configured connection string.</returns>
+		public static string GetConnectionString() {
+			return ConfigurationSettings.AppSettings["MySqlConnectionString"];
+		}
+		
+		/// <summary>
+		/// Creates and returns a closed connection to the configured database.
+		/// </summary>
+		/// <returns>An open connection to the configured database.</returns>
+		public static MySqlConnection GetConnection() {
+			return new MySqlConnection(GetConnectionString());
+		}
+		
+		#region ExecuteNonQuery functions
+		/// <summary>
+		/// Executes the stored procedure.
+		/// </summary>
+		/// <param name="commandText">The stored procedure to execute.</param>
+		public static void ExecuteNonQuery(string commandText) {
+			using (MySqlConnection connection = GetConnection()) {
+				ExecuteNonQuery(connection, commandText);
+			}
+		}
+		
+		/// <summary>
+		/// Executes the stored procedure on the specified <see cref="MySqlConnection"/>.
+		/// </summary>
+		/// <param name="connection">The database connection to be used.</param>
+		/// <param name="commandText">The stored procedure to execute.</param>
+		public static void ExecuteNonQuery(MySqlConnection connection, string commandText) {
+			ExecuteNonQuery(connection, null, commandText);
+		}
+		
+		/// <summary>
+		/// Executes the stored procedure on the specified <see cref="MySqlConnection"/> within the specified <see cref="MySqlTransaction"/>.
+		/// </summary>
+		/// <param name="connection">The database connection to be used.</param>
+		/// <param name="transaction">The transaction to participate in.</param>
+		/// <param name="commandText">The stored procedure to execute.</param>
+		public static void ExecuteNonQuery(MySqlConnection connection, MySqlTransaction transaction, string commandText) {
+			using (MySqlCommand command = CreateCommand(connection, transaction, commandText)) {
+				command.ExecuteNonQuery();
+			}
+		}
+		
+		/// <summary>
+		/// Executes the stored procedure with the specified parameters.
+		/// </summary>
+		/// <param name="commandText">The stored procedure to execute.</param>
+		/// <param name="parameters">The parameters of the stored procedure.</param>
+		public static void ExecuteNonQuery(string commandText, params MySqlParameter[] parameters) {
+			using (MySqlConnection connection = GetConnection()) {
+				ExecuteNonQuery(connection, commandText, parameters);
+			}
+		}
+		
+		/// <summary>
+		/// Executes the stored procedure with the specified parameters on the specified connection.
+		/// </summary>
+		/// <param name="connection">The database connection to be used.</param>
+		/// <param name="commandText">The stored procedure to execute.</param>
+		/// <param name="parameters">The parameters of the stored procedure.</param>
+		public static void ExecuteNonQuery(MySqlConnection connection, string commandText, params MySqlParameter[] parameters) {
+			ExecuteNonQuery(connection, null, commandText, parameters);
+		}
+		
+		/// <summary>
+		/// Executes the stored procedure with the specified parameters on the specified <see cref="MySqlConnection"/> within the specified <see cref="MySqlTransaction"/>.
+		/// </summary>
+		/// <param name="connection">The database connection to be used.</param>
+		/// <param name="transaction">The transaction to participate in.</param>
+		/// <param name="commandText">The stored procedure to execute.</param>
+		/// <param name="parameters">The parameters of the stored procedure.</param>
+		public static void ExecuteNonQuery(MySqlConnection connection, MySqlTransaction transaction, string commandText, params MySqlParameter[] parameters) {
+			using (MySqlCommand command = CreateCommand(connection, transaction, commandText, parameters)) {
+				command.ExecuteNonQuery();
+			}
+		}
+		#endregion
+		
+		#region ExecuteReader functions
+		/// <summary>
+		/// Executes the stored procedure and returns the result as a <see cref="MySqlDataReader"/>.
+		/// </summary>
+		/// <param name="commandText">The stored procedure to execute.</param>
+		/// <returns>A <see cref="MySqlDataReader"/> containing the results of the stored procedure execution.</returns>
+		public static MySqlDataReader ExecuteReader(string commandText) {
+			using (MySqlConnection connection = GetConnection()) {
+				return ExecuteReader(connection, commandText);
+			}
+		}
+		
+		/// <summary>
+		/// Executes the stored procedure on the specified <see cref="MySqlConnection"/> and returns the result as a <see cref="MySqlDataReader"/>.
+		/// </summary>
+		/// <param name="connection">The database connection to be used.</param>
+		/// <param name="commandText">The stored procedure to execute.</param>
+		/// <returns>A <see cref="MySqlDataReader"/> containing the results of the stored procedure execution.</returns>
+		public static MySqlDataReader ExecuteReader(MySqlConnection connection, string commandText) {
+			return ExecuteReader(connection, null, commandText);
+		}
+		
+		/// <summary>
+		/// Executes the stored procedure on the specified <see cref="MySqlConnection"/> within the specified <see cref="MySqlTransaction"/> and returns the result as a <see cref="MySqlDataReader"/>.
+		/// </summary>
+		/// <param name="connection">The database connection to be used.</param>
+		/// <param name="transaction">The transaction to participate in.</param>
+		/// <param name="commandText">The stored procedure to execute.</param>
+		/// <returns>A <see cref="MySqlDataReader"/> containing the results of the stored procedure execution.</returns>
+		public static MySqlDataReader ExecuteReader(MySqlConnection connection, MySqlTransaction transaction, string commandText) {
+			using (MySqlCommand command = CreateCommand(connection, transaction, commandText)) {
+				return command.ExecuteReader();
+			}
+		}
+		
+		/// <summary>
+		/// Executes the stored procedure with the specified parameters and returns the result as a <see cref="MySqlDataReader"/>.
+		/// </summary>
+		/// <param name="commandText">The stored procedure to execute.</param>
+		/// <param name="parameters">The parameters of the stored procedure.</param>
+		/// <returns>A <see cref="MySqlDataReader"/> containing the results of the stored procedure execution.</returns>
+		public static MySqlDataReader ExecuteReader(string commandText, params MySqlParameter[] parameters) {
+			using (MySqlConnection connection = GetConnection()) {
+				return ExecuteReader(connection, commandText, parameters);
+			}
+		}
+		
+		/// <summary>
+		/// Executes the stored procedure on the specified <see cref="MySqlConnection"/> with the specified parameters and returns the result as a <see cref="MySqlDataReader"/>.
+		/// </summary>
+		/// <param name="connection">The database connection to be used.</param>
+		/// <param name="commandText">The stored procedure to execute.</param>
+		/// <param name="parameters">The parameters of the stored procedure.</param>
+		/// <returns>A <see cref="MySqlDataReader"/> containing the results of the stored procedure execution.</returns>
+		public static MySqlDataReader ExecuteReader(MySqlConnection connection, string commandText, params MySqlParameter[] parameters) {
+			return ExecuteReader(connection, null, commandText, parameters);
+		}
+		
+		/// <summary>
+		/// Executes the stored procedure on the specified <see cref="MySqlConnection"/> within the specified <see cref="MySqlTransaction"/> with the specified parameters and returns the result as a <see cref="MySqlDataReader"/>.
+		/// </summary>
+		/// <param name="connection">The database connection to be used.</param>
+		/// <param name="transaction">The transaction to participate in.</param>
+		/// <param name="commandText">The stored procedure to execute.</param>
+		/// <param name="parameters">The parameters of the stored procedure.</param>
+		/// <returns>A <see cref="MySqlDataReader"/> containing the results of the stored procedure execution.</returns>
+		public static MySqlDataReader ExecuteReader(MySqlConnection connection, MySqlTransaction transaction, string commandText, params MySqlParameter[] parameters) {
+			using (MySqlCommand command = CreateCommand(connection, transaction, commandText, parameters)) {
+				return command.ExecuteReader();
+			}
+		}
+		#endregion
+		
+		#region ExecuteScalar functions
+		/// <summary>
+		/// Executes the stored procedure, and returns the first column of the first row in the result set returned by the query. Extra columns or rows are ignored.
+		/// </summary>
+		/// <param name="commandText">The stored procedure to execute.</param>
+		/// <returns>The first column of the first row in the result set, or a null reference if the result set is empty.</returns>
+		public static object ExecuteScalar(string commandText) {
+			using (MySqlConnection connection = GetConnection()) {
+				return ExecuteScalar(connection, commandText);
+			}
+		}
+		
+		/// <summary>
+		/// Executes the stored procedure on the specified <see cref="MySqlConnection"/>, and returns the first column of the first row in the result set returned by the query. Extra columns or rows are ignored.
+		/// </summary>
+		/// <param name="connection">The database connection to be used.</param>
+		/// <param name="commandText">The stored procedure to execute.</param>
+		/// <returns>The first column of the first row in the result set, or a null reference if the result set is empty.</returns>
+		public static object ExecuteScalar(MySqlConnection connection, string commandText) {
+			return ExecuteScalar(connection, null, commandText);
+		}
+		
+		/// <summary>
+		/// Executes the stored procedure on the specified <see cref="MySqlConnection"/> within the specified <see cref="MySqlTransaction"/>, and returns the first column of the first row in the result set returned by the query. Extra columns or rows are ignored.
+		/// </summary>
+		/// <param name="connection">The database connection to be used.</param>
+		/// <param name="transaction">The transaction to participate in.</param>
+		/// <param name="commandText">The stored procedure to execute.</param>
+		/// <returns>The first column of the first row in the result set, or a null reference if the result set is empty.</returns>
+		public static object ExecuteScalar(MySqlConnection connection, MySqlTransaction transaction, string commandText) {
+			using (MySqlCommand command = CreateCommand(connection, transaction, commandText)) {
+				return command.ExecuteScalar();
+			}
+		}
+		
+		/// <summary>
+		/// Executes the stored procedure with the specified parameters, and returns the first column of the first row in the result set returned by the query. Extra columns or rows are ignored.
+		/// </summary>
+		/// <param name="commandText">The stored procedure to execute.</param>
+		/// <param name="parameters">The parameters of the stored procedure.</param>
+		/// <returns>The first column of the first row in the result set, or a null reference if the result set is empty.</returns>
+		public static object ExecuteScalar(string commandText, params MySqlParameter[] parameters) {
+			using (MySqlConnection connection = GetConnection()) {
+				return ExecuteScalar(connection, commandText, parameters);
+			}
+		}
+		
+		/// <summary>
+		/// Executes the stored procedure on the specified <see cref="MySqlTransaction"/> with the specified parameters, and returns the first column of the first row in the result set returned by the query. Extra columns or rows are ignored.
+		/// </summary>
+		/// <param name="connection">The database connection to be used.</param>
+		/// <param name="commandText">The stored procedure to execute.</param>
+		/// <param name="parameters">The parameters of the stored procedure.</param>
+		/// <returns>The first column of the first row in the result set, or a null reference if the result set is empty.</returns>
+		public static object ExecuteScalar(MySqlConnection connection, string commandText, params MySqlParameter[] parameters) {
+			return ExecuteScalar(connection, null, commandText, parameters);
+		}
+		
+		/// <summary>
+		/// Executes the stored procedure on the specified <see cref="MySqlTransaction"/> within the specified <see cref="MySqlTransaction"/> with the specified parameters, and returns the first column of the first row in the result set returned by the query. Extra columns or rows are ignored.
+		/// </summary>
+		/// <param name="connection">The database connection to be used.</param>
+		/// <param name="transaction">The transaction to participate in.</param>
+		/// <param name="commandText">The stored procedure to execute.</param>
+		/// <param name="parameters">The parameters of the stored procedure.</param>
+		/// <returns>The first column of the first row in the result set, or a null reference if the result set is empty.</returns>
+		public static object ExecuteScalar(MySqlConnection connection, MySqlTransaction transaction, string commandText, params MySqlParameter[] parameters) {
+			using (MySqlCommand command = CreateCommand(connection, transaction, commandText, parameters)) {
+				return command.ExecuteScalar();
+			}
+		}
+		#endregion
+		
+		#region ExecuteDataSet functions
+		/// <summary>
+		/// Executes the stored procedure and returns the result as a <see cref="DataSet"/>.
+		/// </summary>
+		/// <param name="commandText">The stored procedure to execute.</param>
+		/// <returns>A <see cref="DataSet"/> containing the results of the stored procedure execution.</returns>
+		public static DataSet ExecuteDataSet(string commandText) {
+			using (MySqlConnection connection = GetConnection()) {
+				using (MySqlCommand command = CreateCommand(connection, commandText)) {
+					return CreateDataSet(command);
+				}
+			}
+		}
+		
+		/// <summary>
+		/// Executes the stored procedure and returns the result as a <see cref="DataSet"/>.
+		/// </summary>
+		/// <param name="connection">The database connection to be used.</param>
+		/// <param name="commandText">The stored procedure to execute.</param>
+		/// <returns>A <see cref="DataSet"/> containing the results of the stored procedure execution.</returns>
+		public static DataSet ExecuteDataSet(MySqlConnection connection, string commandText) {
+			using (MySqlCommand command = CreateCommand(connection, commandText)) {
+				return CreateDataSet(command);
+			}
+		}
+		
+		
+		/// <summary>
+		/// Executes the stored procedure and returns the result as a <see cref="DataSet"/>.
+		/// </summary>
+		/// <param name="connection">The database connection to be used.</param>
+		/// <param name="transaction">The transaction to participate in.</param>
+		/// <param name="commandText">The stored procedure to execute.</param>
+		/// <returns>A <see cref="DataSet"/> containing the results of the stored procedure execution.</returns>
+		public static DataSet ExecuteDataSet(MySqlConnection connection, MySqlTransaction transaction, string commandText) {
+			using (MySqlCommand command = CreateCommand(connection, transaction, commandText)) {
+				return CreateDataSet(command);
+			}
+		}
+		
+		/// <summary>
+		/// Executes the stored procedure and returns the result as a <see cref="DataSet"/>.
+		/// </summary>
+		/// <param name="commandText">The stored procedure to execute.</param>
+		/// <param name="parameters">The parameters of the stored procedure.</param>
+		/// <returns>A <see cref="DataSet"/> containing the results of the stored procedure execution.</returns>
+		public static DataSet ExecuteDataSet(string commandText, params MySqlParameter[] parameters) {
+			using (MySqlConnection connection = GetConnection()) {
+				using (MySqlCommand command = CreateCommand(connection, commandText, parameters)) {
+					return CreateDataSet(command);
+				}
+			}
+		}
+		
+		/// <summary>
+		/// Executes the stored procedure and returns the result as a <see cref="DataSet"/>.
+		/// </summary>
+		/// <param name="connection">The database connection to be used.</param>
+		/// <param name="commandText">The stored procedure to execute.</param>
+		/// <param name="parameters">The parameters of the stored procedure.</param>
+		/// <returns>A <see cref="DataSet"/> containing the results of the stored procedure execution.</returns>
+		public static DataSet ExecuteDataSet(MySqlConnection connection, string commandText, params MySqlParameter[] parameters) {
+			using (MySqlCommand command = CreateCommand(connection, commandText, parameters)) {
+				return CreateDataSet(command);
+			}
+		}
+		
+		
+		/// <summary>
+		/// Executes the stored procedure and returns the result as a <see cref="DataSet"/>.
+		/// </summary>
+		/// <param name="connection">The database connection to be used.</param>
+		/// <param name="transaction">The transaction to participate in.</param>
+		/// <param name="commandText">The stored procedure to execute.</param>
+		/// <param name="parameters">The parameters of the stored procedure.</param>
+		/// <returns>A <see cref="DataSet"/> containing the results of the stored procedure execution.</returns>
+		public static DataSet ExecuteDataSet(MySqlConnection connection, MySqlTransaction transaction, string commandText, params MySqlParameter[] parameters) {
+			using (MySqlCommand command = CreateCommand(connection, transaction, commandText, parameters)) {
+				return CreateDataSet(command);
+			}
+		}
+		#endregion
+		
+		#region ExecuteDataTable functions
+		/// <summary>
+		/// Executes the stored procedure and returns the result as a <see cref="DataTable"/>.
+		/// </summary>
+		/// <param name="commandText">The stored procedure to execute.</param>
+		/// <returns>A <see cref="DataTable"/> containing the results of the stored procedure execution.</returns>
+		public static DataTable ExecuteDataTable(string commandText) {
+			using (MySqlConnection connection = GetConnection()) {
+				using (MySqlCommand command = CreateCommand(connection, commandText)) {
+					return CreateDataTable(command);
+				}
+			}
+		}
+		
+		/// <summary>
+		/// Executes the stored procedure and returns the result as a <see cref="DataTable"/>.
+		/// </summary>
+		/// <param name="connection">The database connection to be used.</param>
+		/// <param name="commandText">The stored procedure to execute.</param>
+		/// <returns>A <see cref="DataTable"/> containing the results of the stored procedure execution.</returns>
+		public static DataTable ExecuteDataTable(MySqlConnection connection, string commandText) {
+			using (MySqlCommand command = CreateCommand(connection, commandText)) {
+				return CreateDataTable(command);
+			}
+		}
+		
+		
+		/// <summary>
+		/// Executes the stored procedure and returns the result as a <see cref="DataTable"/>.
+		/// </summary>
+		/// <param name="connection">The database connection to be used.</param>
+		/// <param name="transaction">The transaction to participate in.</param>
+		/// <param name="commandText">The stored procedure to execute.</param>
+		/// <returns>A <see cref="DataTable"/> containing the results of the stored procedure execution.</returns>
+		public static DataTable ExecuteDataTable(MySqlConnection connection, MySqlTransaction transaction, string commandText) {
+			using (MySqlCommand command = CreateCommand(connection, transaction, commandText)) {
+				return CreateDataTable(command);
+			}
+		}
+		
+		/// <summary>
+		/// Executes the stored procedure and returns the result as a <see cref="DataTable"/>.
+		/// </summary>
+		/// <param name="commandText">The stored procedure to execute.</param>
+		/// <param name="parameters">The parameters of the stored procedure.</param>
+		/// <returns>A <see cref="DataTable"/> containing the results of the stored procedure execution.</returns>
+		public static DataTable ExecuteDataTable(string commandText, params MySqlParameter[] parameters) {
+			using (MySqlConnection connection = GetConnection()) {
+				using (MySqlCommand command = CreateCommand(connection, commandText, parameters)) {
+					return CreateDataTable(command);
+				}
+			}
+		}
+		
+		/// <summary>
+		/// Executes the stored procedure and returns the result as a <see cref="DataTable"/>.
+		/// </summary>
+		/// <param name="connection">The database connection to be used.</param>
+		/// <param name="commandText">The stored procedure to execute.</param>
+		/// <param name="parameters">The parameters of the stored procedure.</param>
+		/// <returns>A <see cref="DataTable"/> containing the results of the stored procedure execution.</returns>
+		public static DataTable ExecuteDataTable(MySqlConnection connection, string commandText, params MySqlParameter[] parameters) {
+			using (MySqlCommand command = CreateCommand(connection, commandText, parameters)) {
+				return CreateDataTable(command);
+			}
+		}
+		
+		
+		/// <summary>
+		/// Executes the stored procedure and returns the result as a <see cref="DataTable"/>.
+		/// </summary>
+		/// <param name="connection">The database connection to be used.</param>
+		/// <param name="transaction">The transaction to participate in.</param>
+		/// <param name="commandText">The stored procedure to execute.</param>
+		/// <param name="parameters">The parameters of the stored procedure.</param>
+		/// <returns>A <see cref="DataTable"/> containing the results of the stored procedure execution.</returns>
+		public static DataTable ExecuteDataTable(MySqlConnection connection, MySqlTransaction transaction, string commandText, params MySqlParameter[] parameters) {
+			using (MySqlCommand command = CreateCommand(connection, transaction, commandText, parameters)) {
+				return CreateDataTable(command);
+			}
+		}
+		#endregion
+		
+		#region Utility functions
+		/// <summary>
+		/// Sets the specified <see cref="MySqlParameter"/>'s <code>Value</code> property to <code>DBNull.Value</code> if it is <code>null</code>.
+		/// </summary>
+		/// <param name="parameter">The <see cref="MySqlParameter"/> that should be checked for nulls.</param>
+		/// <returns>The <see cref="MySqlParameter"/> with a potentially updated <code>Value</code> property.</returns>
+		private static MySqlParameter CheckParameter(MySqlParameter parameter) {
+			if (parameter.Value == null) {
+				parameter.Value = DBNull.Value;
+			}
+			
+			return parameter;
+		}
+		
+		#region CreateCommand
+		/// <summary>
+		/// Creates, initializes, and returns a <see cref="MySqlCommand"/> instance.
+		/// </summary>
+		/// <param name="connection">The <see cref="MySqlConnection"/> the <see cref="MySqlCommand"/> should be executed on.</param>
+		/// <param name="commandText">The name of the stored procedure to execute.</param>
+		/// <returns>An initialized <see cref="MySqlCommand"/> instance.</returns>
+		private static MySqlCommand CreateCommand(MySqlConnection connection, string commandText) {
+			return CreateCommand(connection, null, commandText);
+		}
+		
+		/// <summary>
+		/// Creates, initializes, and returns a <see cref="MySqlCommand"/> instance.
+		/// </summary>
+		/// <param name="connection">The <see cref="MySqlConnection"/> the <see cref="MySqlCommand"/> should be executed on.</param>
+		/// <param name="transaction">The <see cref="MySqlTransaction"/> the stored procedure execution should participate in.</param>
+		/// <param name="commandText">The name of the stored procedure to execute.</param>
+		/// <returns>An initialized <see cref="MySqlCommand"/> instance.</returns>
+		private static MySqlCommand CreateCommand(MySqlConnection connection, MySqlTransaction transaction, string commandText) {
+			MySqlCommand command = new MySqlCommand();
+			command.Connection = connection;
+			command.CommandText = commandText;
+			command.CommandTimeout = COMMAND_TIMEOUT;
+			command.CommandType = CommandType.StoredProcedure;
+			command.Transaction = transaction;
+			return command;
+		}
+		
+		/// <summary>
+		/// Creates, initializes, and returns a <see cref="MySqlCommand"/> instance.
+		/// </summary>
+		/// <param name="connection">The <see cref="MySqlConnection"/> the <see cref="MySqlCommand"/> should be executed on.</param>
+		/// <param name="commandText">The name of the stored procedure to execute.</param>
+		/// <param name="parameters">The parameters of the stored procedure.</param>
+		/// <returns>An initialized <see cref="MySqlCommand"/> instance.</returns>
+		private static MySqlCommand CreateCommand(MySqlConnection connection, string commandText, params MySqlParameter[] parameters) {
+			return CreateCommand(connection, null, commandText, parameters);
+		}
+		
+		/// <summary>
+		/// Creates, initializes, and returns a <see cref="MySqlCommand"/> instance.
+		/// </summary>
+		/// <param name="connection">The <see cref="MySqlConnection"/> the <see cref="MySqlCommand"/> should be executed on.</param>
+		/// <param name="transaction">The <see cref="MySqlTransaction"/> the stored procedure execution should participate in.</param>
+		/// <param name="commandText">The name of the stored procedure to execute.</param>
+		/// <param name="parameters">The parameters of the stored procedure.</param>
+		/// <returns>An initialized <see cref="MySqlCommand"/> instance.</returns>
+		private static MySqlCommand CreateCommand(MySqlConnection connection, MySqlTransaction transaction, string commandText, params MySqlParameter[] parameters) {
+			MySqlCommand command = new MySqlCommand();
+			command.Connection = connection;
+			command.CommandText = commandText;
+			command.CommandTimeout = COMMAND_TIMEOUT;
+			command.CommandType = CommandType.StoredProcedure;
+			command.Transaction = transaction;
+				
+			// Append each parameter to the command
+			foreach (MySqlParameter parameter in parameters) {
+				command.Parameters.Add(CheckParameter(parameter));
+			}
+			
+			return command;
+		}
+		#endregion CreateCommand
+		
+		private static DataSet CreateDataSet(MySqlCommand command) {
+			using (MySqlDataAdapter dataAdapter = new MySqlDataAdapter(command)) {
+				DataSet dataSet = new DataSet();
+				dataAdapter.Fill(dataSet);
+				return dataSet;
+			}
+		}
+		
+		private static DataTable CreateDataTable(MySqlCommand command) {
+			using (MySqlDataAdapter dataAdapter = new MySqlDataAdapter(command)) {
+				DataTable dataTable = new DataTable();
+				dataAdapter.Fill(dataTable);
+				return dataTable;
+			}
+		}
+		#endregion
+		
+		#region Exception functions
+		/// <summary>
+		/// Determines if the specified exception is the result of a foreign key violation.
+		/// </summary>
+		/// <param name="e">The exception to check.</param>
+		/// <returns><code>true</code> if the exception is a foreign key violation, otherwise <code>false</code>.</returns>
+		public static bool IsForeignKeyContraintException(Exception e) {
+			MySqlException sqlex = e as MySqlException;
+			if (sqlex != null && sqlex.Number == 547) {
+				return true;
+			}
+			
+			return false;
+		}
+		
+		/// <summary>
+		/// Determines if the specified exception is the result of a unique constraint violation.
+		/// </summary>
+		/// <param name="e">The exception to check.</param>
+		/// <returns><code>true</code> if the exception is a unique constraint violation, otherwise <code>false</code>.</returns>
+		public static bool IsUniqueConstraintException(Exception e) {
+			MySqlException sqlex = e as MySqlException;
+			if (sqlex != null && (sqlex.Number == 2627 || sqlex.Number == 2601)) {
+				return true;
+			}
+			
+			return false;
+		}
+		#endregion
+	}
+}

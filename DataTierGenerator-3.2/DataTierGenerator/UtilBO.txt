@@ -1,0 +1,25 @@
+using System;
+//using System.Collections.Generic;
+using System.Text;
+using System.Diagnostics;
+
+namespace #Namespace#.BusinessObjects
+{
+    public class UtilBO
+    {
+          //'Manejador generico de Excepciones que enmascara la informacion detallada de la excepcion 
+    
+        public static void ManejaExcepcion(Exception ex,Object sender,string metodo)
+        {
+            //' Agregar codigo para log en txt
+            //'Dim tracetxt As New TextWriterTraceListener(New StreamWriter("log.txt"))
+            //'Trace.Listeners.Add(tracetxt)
+            Debug.WriteLine(ex.StackTrace);
+            Trace.WriteLine(ex.StackTrace);
+            throw new Exception("Ocurrio un Error al Ejecutar : " + sender.ToString() + " metodo : " + metodo);
+        }
+        
+    
+    }
+}
+
