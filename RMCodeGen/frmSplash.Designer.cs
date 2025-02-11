@@ -28,7 +28,6 @@ namespace DataTierGenerator
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmSplash));
             this.pictureBoxImagen = new System.Windows.Forms.PictureBox();
             this.lblAnio = new System.Windows.Forms.Label();
             this.panelMain = new System.Windows.Forms.Panel();
@@ -41,7 +40,7 @@ namespace DataTierGenerator
             // pictureBoxImagen
             // 
             this.pictureBoxImagen.BackColor = System.Drawing.Color.White;
-            this.pictureBoxImagen.Image = ((System.Drawing.Image)(resources.GetObject("pictureBoxImagen.Image")));
+            this.pictureBoxImagen.ErrorImage = null;
             this.pictureBoxImagen.Location = new System.Drawing.Point(27, 11);
             this.pictureBoxImagen.Name = "pictureBoxImagen";
             this.pictureBoxImagen.Size = new System.Drawing.Size(258, 235);
@@ -55,9 +54,9 @@ namespace DataTierGenerator
             this.lblAnio.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Bold);
             this.lblAnio.Location = new System.Drawing.Point(245, 217);
             this.lblAnio.Name = "lblAnio";
-            this.lblAnio.Size = new System.Drawing.Size(40, 16);
+            this.lblAnio.Size = new System.Drawing.Size(39, 16);
             this.lblAnio.TabIndex = 2;
-            this.lblAnio.Text = "2009";
+            this.lblAnio.Text = "2025";
             // 
             // panelMain
             // 
