@@ -1410,7 +1410,6 @@ namespace DataTierGenerator
             this.AutoScaleBaseSize = new System.Drawing.Size(5, 13);
             this.ClientSize = new System.Drawing.Size(898, 582);
             this.Controls.Add(this.tabControlPrincipal);
-            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "frmGenerador";
             this.Text = "R&M Generador de Codigo";
             this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
