@@ -25,7 +25,7 @@ namespace RMCodeGen.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Data Source=giovanni;Initial Catalog=data_400;Integrated Security=true;User Id=SU" +
+        [global::System.Configuration.DefaultSettingValueAttribute("Data Source=JACKIE;Initial Catalog=data_400;Integrated Security=true;User Id=SU" +
             "PERVISOR_SQL;Password=XfSgsh2Wna7KtZLBkLgTlbdhuW1of")]
         public string CadenaConexion {
             get {

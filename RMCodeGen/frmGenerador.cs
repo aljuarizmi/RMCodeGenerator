@@ -1381,30 +1381,6 @@ namespace DataTierGenerator
             this.txtAuditoria.TabIndex = 5;
             this.txtAuditoria.Text = "";
             // 
-            // cSharpHighlighter1
-            // 
-            this.cSharpHighlighter1.FullName = "C#";
-            this.cSharpHighlighter1.Name = "C#";
-            this.cSharpHighlighter1.Parser = null;
-            // 
-            // aspxHighlighter1
-            // 
-            this.aspxHighlighter1.FullName = "ASP.NET";
-            this.aspxHighlighter1.Name = "ASPX";
-            this.aspxHighlighter1.Parser = null;
-            // 
-            // sqlHighlighter1
-            // 
-            this.sqlHighlighter1.FullName = "SQL";
-            this.sqlHighlighter1.Name = "SQL";
-            this.sqlHighlighter1.Parser = null;
-            // 
-            // vbHighlighter1
-            // 
-            this.vbHighlighter1.FullName = "Visual Basic";
-            this.vbHighlighter1.Name = "VisualBasic";
-            this.vbHighlighter1.Parser = null;
-            // 
             // frmGenerador
             // 
             this.AutoScaleBaseSize = new System.Drawing.Size(5, 13);
@@ -1567,8 +1543,11 @@ namespace DataTierGenerator
             this.ActiveControl = this.txtASPX;
             //this.txtCon.Text  = "Data Source=CASA;Initial Catalog=Royal;Persist Security Info=True;User ID=juanpablo;password=juanpablo";
             parser = new RtfParser(this.txtPrerrequisito);
-            this.sqlHighlighter1.Parser = parser;
-            txtPrerrequisito.Rtf = this.sqlHighlighter1.Parse(this.txtPrerrequisito.Text);
+            if (this.sqlHighlighter1 != null) {
+                this.sqlHighlighter1.Parser = parser;
+                txtPrerrequisito.Rtf = this.sqlHighlighter1.Parse(this.txtPrerrequisito.Text);
+            }
+            
             if (cbProveedor.Items.Count > 0) { cbProveedor.SelectedIndex = 0; }
             Text = "R&M Generador de Codigo - versión: " + Application.ProductVersion;
         }
@@ -2371,8 +2350,10 @@ namespace DataTierGenerator
                         parser = new RtfParser(this.txtEntidad);
                         if (radCS.Checked == true)
                         {
-                            this.cSharpHighlighter1.Parser = parser;
-                            txtEntidad.Rtf = this.cSharpHighlighter1.Parse(this.txtEntidad.Text);
+                            if (this.cSharpHighlighter1 != null) {
+                                this.cSharpHighlighter1.Parser = parser;
+                                txtEntidad.Rtf = this.cSharpHighlighter1.Parse(this.txtEntidad.Text);
+                            }
                         }
                         else
                         {
@@ -2391,8 +2372,11 @@ namespace DataTierGenerator
                         parser = new RtfParser(this.txtClase);
                         if (radCS.Checked == true)
                         {
-                            this.cSharpHighlighter1.Parser = parser;
-                            txtClase.Rtf = this.cSharpHighlighter1.Parse(this.txtClase.Text);
+                            if (this.cSharpHighlighter1 != null) {
+                                this.cSharpHighlighter1.Parser = parser;
+                                txtClase.Rtf = this.cSharpHighlighter1.Parse(this.txtClase.Text);
+                            }
+                            
                         }
                         //txtEntidad.Rtf = CodeHighLight.Highlight(txtEntidad.Text);
                     }
@@ -2404,8 +2388,11 @@ namespace DataTierGenerator
 
                             txtSQLSP.Text = streamReader.ReadToEnd();
                             parser = new RtfParser(this.txtSQLSP);
-                            this.sqlHighlighter1.Parser = parser;
-                            txtSQLSP.Rtf = this.sqlHighlighter1.Parse(this.txtSQLSP.Text);
+                            if (this.cSharpHighlighter1 != null) {
+                                this.sqlHighlighter1.Parser = parser;
+                                txtSQLSP.Rtf = this.sqlHighlighter1.Parse(this.txtSQLSP.Text);
+                            }
+                                
                         }
                     }
                     //abre el Archivo de Acceso a Datos
@@ -2419,8 +2406,11 @@ namespace DataTierGenerator
                                 parser = new RtfParser(this.txtBusinessObject);
                                 if (radCS.Checked == true)
                                 {
-                                    this.cSharpHighlighter1.Parser = parser;
-                                    txtBusinessObject.Rtf = this.cSharpHighlighter1.Parse(this.txtBusinessObject.Text);
+                                    if (this.cSharpHighlighter1 != null) {
+                                        this.cSharpHighlighter1.Parser = parser;
+                                        txtBusinessObject.Rtf = this.cSharpHighlighter1.Parse(this.txtBusinessObject.Text);
+                                    }
+                                        
                                 }
                                 else
                                 {
@@ -2437,8 +2427,11 @@ namespace DataTierGenerator
                             {
                                 txtBusinessObjectJava.Text = streamReader.ReadToEnd();
                                 parser = new RtfParser(this.txtBusinessObjectJava);
-                                this.cSharpHighlighter1.Parser = parser;
-                                txtBusinessObjectJava.Rtf = this.cSharpHighlighter1.Parse(this.txtBusinessObjectJava.Text);
+                                if (this.cSharpHighlighter1 != null) {
+                                    this.cSharpHighlighter1.Parser = parser;
+                                    txtBusinessObjectJava.Rtf = this.cSharpHighlighter1.Parse(this.txtBusinessObjectJava.Text);
+                                }
+                                    
                             }
                         }
 
@@ -2450,8 +2443,11 @@ namespace DataTierGenerator
                             {
                                 txtAccesoDatosJava.Text = streamReader.ReadToEnd();
                                 parser = new RtfParser(this.txtAccesoDatosJava);
-                                this.cSharpHighlighter1.Parser = parser;
-                                txtAccesoDatosJava.Rtf = this.cSharpHighlighter1.Parse(this.txtAccesoDatosJava.Text);
+                                if (this.cSharpHighlighter1 != null) {
+                                    this.cSharpHighlighter1.Parser = parser;
+                                    txtAccesoDatosJava.Rtf = this.cSharpHighlighter1.Parse(this.txtAccesoDatosJava.Text);
+                                }
+                                    
                             }
                         }
 
@@ -2461,8 +2457,12 @@ namespace DataTierGenerator
                             {
                                 txtAccesoDatosJavaCommand.Text = streamReader.ReadToEnd();
                                 parser = new RtfParser(this.txtAccesoDatosJavaCommand);
-                                this.cSharpHighlighter1.Parser = parser;
-                                txtAccesoDatosJavaCommand.Rtf = this.cSharpHighlighter1.Parse(this.txtAccesoDatosJavaCommand.Text);
+                                if (this.cSharpHighlighter1 != null)
+                                {
+                                    this.cSharpHighlighter1.Parser = parser;
+                                    txtAccesoDatosJavaCommand.Rtf = this.cSharpHighlighter1.Parse(this.txtAccesoDatosJavaCommand.Text);
+                                }
+                                    
                             }
                         }
 
@@ -2472,8 +2472,12 @@ namespace DataTierGenerator
                             {
                                 txtAccesoDatosJavaDirection.Text = streamReader.ReadToEnd();
                                 parser = new RtfParser(this.txtAccesoDatosJavaDirection);
-                                this.cSharpHighlighter1.Parser = parser;
-                                txtAccesoDatosJavaDirection.Rtf = this.cSharpHighlighter1.Parse(this.txtAccesoDatosJavaDirection.Text);
+                                if (this.cSharpHighlighter1 != null)
+                                {
+                                    this.cSharpHighlighter1.Parser = parser;
+                                    txtAccesoDatosJavaDirection.Rtf = this.cSharpHighlighter1.Parse(this.txtAccesoDatosJavaDirection.Text);
+                                }
+                                    
                             }
                         }
 
@@ -2483,8 +2487,12 @@ namespace DataTierGenerator
                             {
                                 txtAccesoDatosJavaParameter.Text = streamReader.ReadToEnd();
                                 parser = new RtfParser(this.txtAccesoDatosJavaParameter);
-                                this.cSharpHighlighter1.Parser = parser;
-                                txtAccesoDatosJavaParameter.Rtf = this.cSharpHighlighter1.Parse(this.txtAccesoDatosJavaParameter.Text);
+                                if (this.cSharpHighlighter1 != null)
+                                {
+                                    this.cSharpHighlighter1.Parser = parser;
+                                    txtAccesoDatosJavaParameter.Rtf = this.cSharpHighlighter1.Parse(this.txtAccesoDatosJavaParameter.Text);
+                                }
+                                    
                             }
                         }
 
@@ -2497,8 +2505,11 @@ namespace DataTierGenerator
                                 parser = new RtfParser(this.txtAccesoDatosVisual);
                                 if (radCS.Checked == true)
                                 {
-                                    this.cSharpHighlighter1.Parser = parser;
-                                    txtAccesoDatosVisual.Rtf = this.cSharpHighlighter1.Parse(this.txtAccesoDatosVisual.Text);
+                                    if (this.cSharpHighlighter1 != null) {
+                                        this.cSharpHighlighter1.Parser = parser;
+                                        txtAccesoDatosVisual.Rtf = this.cSharpHighlighter1.Parse(this.txtAccesoDatosVisual.Text);
+                                    }
+                                        
                                 }
                                 else
                                 {
@@ -2518,8 +2529,11 @@ namespace DataTierGenerator
                                 parser = new RtfParser(this.txtSQLUtility);
                                 if (radCS.Checked == true)
                                 {
-                                    this.cSharpHighlighter1.Parser = parser;
-                                    txtSQLUtility.Rtf = this.cSharpHighlighter1.Parse(this.txtSQLUtility.Text);
+                                    if (this.cSharpHighlighter1 != null) {
+                                        this.cSharpHighlighter1.Parser = parser;
+                                        txtSQLUtility.Rtf = this.cSharpHighlighter1.Parse(this.txtSQLUtility.Text);
+                                    }
+                                        
                                 }
                                 else
                                 {
@@ -2536,8 +2550,11 @@ namespace DataTierGenerator
                             {
                                 txtSQLUtilityJava.Text = streamReader.ReadToEnd();
                                 parser = new RtfParser(this.txtSQLUtilityJava);
-                                this.cSharpHighlighter1.Parser = parser;
-                                txtSQLUtilityJava.Rtf = this.cSharpHighlighter1.Parse(this.txtSQLUtilityJava.Text);
+                                if (this.cSharpHighlighter1 != null) {
+                                    this.cSharpHighlighter1.Parser = parser;
+                                    txtSQLUtilityJava.Rtf = this.cSharpHighlighter1.Parse(this.txtSQLUtilityJava.Text);
+                                }
+                                    
                             }
                         }
 
@@ -2551,8 +2568,11 @@ namespace DataTierGenerator
                                 parser = new RtfParser(this.txtAuditoria);
                                 if (radCS.Checked == true)
                                 {
-                                    this.cSharpHighlighter1.Parser = parser;
-                                    txtAuditoria.Rtf = this.cSharpHighlighter1.Parse(this.txtAuditoria.Text);
+                                    if (this.cSharpHighlighter1 != null) {
+                                        this.cSharpHighlighter1.Parser = parser;
+                                        txtAuditoria.Rtf = this.cSharpHighlighter1.Parse(this.txtAuditoria.Text);
+                                    }
+                                        
                                 }
                                 else
                                 {
@@ -2578,8 +2598,12 @@ namespace DataTierGenerator
                                 parser = new RtfParser(this.txtUtilDA);
                                 if (radCS.Checked == true)
                                 {
-                                    this.cSharpHighlighter1.Parser = parser;
-                                    txtUtilDA.Rtf = this.cSharpHighlighter1.Parse(this.txtUtilDA.Text);
+                                    if (this.cSharpHighlighter1 != null)
+                                    {
+                                        this.cSharpHighlighter1.Parser = parser;
+                                        txtUtilDA.Rtf = this.cSharpHighlighter1.Parse(this.txtUtilDA.Text);
+                                    }
+                                        
                                 }
                                 else
                                 {
@@ -2598,8 +2622,11 @@ namespace DataTierGenerator
                                 parser = new RtfParser(this.txtUtilBO);
                                 if (radCS.Checked == true)
                                 {
-                                    this.cSharpHighlighter1.Parser = parser;
-                                    txtUtilBO.Rtf = this.cSharpHighlighter1.Parse(this.txtUtilBO.Text);
+                                    if (this.cSharpHighlighter1 != null) {
+                                        this.cSharpHighlighter1.Parser = parser;
+                                        txtUtilBO.Rtf = this.cSharpHighlighter1.Parse(this.txtUtilBO.Text);
+                                    }
+                                        
                                 }
                                 else
                                 {
@@ -2618,8 +2645,11 @@ namespace DataTierGenerator
                                 parser = new RtfParser(this.txtGenericsBO);
                                 if (radCS.Checked == true)
                                 {
-                                    this.cSharpHighlighter1.Parser = parser;
-                                    txtGenericsBO.Rtf = this.cSharpHighlighter1.Parse(this.txtGenericsBO.Text);
+                                    if (this.cSharpHighlighter1 != null) {
+                                        this.cSharpHighlighter1.Parser = parser;
+                                        txtGenericsBO.Rtf = this.cSharpHighlighter1.Parse(this.txtGenericsBO.Text);
+                                    }
+                                        
                                 }
                                 else
                                 {
@@ -2638,8 +2668,11 @@ namespace DataTierGenerator
                                 parser = new RtfParser(this.txtGenericsDA);
                                 if (radCS.Checked == true)
                                 {
-                                    this.cSharpHighlighter1.Parser = parser;
-                                    txtGenericsDA.Rtf = this.cSharpHighlighter1.Parse(this.txtGenericsDA.Text);
+                                    if (this.cSharpHighlighter1 != null) {
+                                        this.cSharpHighlighter1.Parser = parser;
+                                        txtGenericsDA.Rtf = this.cSharpHighlighter1.Parse(this.txtGenericsDA.Text);
+                                    }
+                                        
                                 }
                                 else
                                 {
